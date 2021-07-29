@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  
+  
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="/2021/07/29/hello-world/"/>
+    <url>/2021/07/29/hello-world/</url>
+    
+    <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2><span id="quick-start">Quick Start</span></h2><h3><span id="create-a-new-post">Create a new post</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span><br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3><span id="run-server">Run server</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo server<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3><span id="generate-static-files">Generate static files</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo generate<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3><span id="deploy-to-remote-sites">Deploy to remote sites</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ hexo deploy<br></code></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>mysql开发规范</title>
+    <link href="/2021/07/27/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/mysql%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83/"/>
+    <url>/2021/07/27/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/mysql%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83/</url>
+    
+    <content type="html"><![CDATA[<hr><p>[TOC]</p><h2><span id="建表规范"><strong>建表规范</strong></span></h2><ol><li>默认使用使用innoDB 引擎，字符集 utf8mb4</li><li>表名称规范<br><code>[biz]_xxxx_[app|mis]_conf</code> : 在线、离线服务配置。 <br><code>[biz]_xxxx_record</code> : 数据表，最高优先级。<br><code>[biz]_xxxx_[app|mis]log</code> : 日志表，低优先级</li><li>所有字段 NOT NULL ，优先设置 unsigned，小数设置为decimal，金额存成分，时间设置为datatime</li><li>字段最大长度，保存克制，防止建索引时空间不够。</li><li>字段长度大于1024需要拆分表，使用text， 主表上存拆分表id。</li><li>表示 “是否” 字段，一律使用 if_xxx 的方式命名，数据类型是unsigned tinyint</li><li>日增10万，年增5000万，id使用bigint，雪花算法。其余情况使用integer自增主键</li><li>字段顺序依次为：主键、业务主键、状态、各种外键、各种分类、具体props、base属性… <br>正确示例：id，order_id，order_status，product_id，user_id，order_time</li><li>保留名称，show、update、desc、status、range、match、delayed</li><li>推荐：单表最大长度小于2000万，单行长度小于16Kb，单表小于2g</li></ol><h2><span id="索引规范"><strong>索引规范</strong></span></h2><ol><li><p>联合索引的字段数目不能超过5，单表索引数量也不能超过5，索引设计遵循B+ Tree最左前匹配原则</p></li><li><p>对一个VARCHAR(N)列创建索引时，通常取其50%（甚至更小）左右长度创建前缀索引就足以满足80%以上的查询需求了，没必要创建整列的全长度索引  </p></li><li><p>根据业务命名空间的顺序构造联合索引，比如 productId/userId/serviceId/time/xxx</p></li><li><p>order by ， group by 的字段需要建立索引，尽量不使用groupby，orderby 使用java进程完成此操作</p></li><li><p>业务上的全局唯一字段，需要建立唯一索引</p></li><li><p>事物中，如 SELECT * FROM yes WHERE name =’yes’ FOR UPDATE; <br>通过等普通条件判断【name = xxx】进行筛选加锁时，则该列（name）需要加索引。否则容易锁表。</p></li></ol><h2><span id="sql开发规范"><strong>SQL开发规范</strong></span></h2><ol><li><p>对于 java 程序，只能使用 sql 模板查询，不允许使用各类动态sql生成器。</p></li><li><p>强烈推荐：只使用 mybatis_code_helper_pro 生成 xml sql 语句。</p></li><li><p>对外在线接口：<br>使用短sql，禁止三个表 join，禁止 where 子句，禁止 sql 函数。<br>对外接口尽量避免复杂查询，查询首先保证拓展性。</p></li><li><p>推荐：使用mysql执行计划验收sql语句，注意索引的有序性，尽量使用覆盖索引。</p></li><li><p>事务避免本类调用，使用hutool，SpringUtil获取事务方法。<br>直接使用传统 commit 指令也是不错的选择。</p></li><li><p>超过10万行数据，首先确定分页的必要性；能否转换为下拉查询，或时间查询。<br>必须精确分页的话，查询使用 inner join</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> tables <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span><br>( <span class="hljs-keyword">select</span> id <span class="hljs-keyword">from</span> tables <span class="hljs-keyword">where</span> [条件]  <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> xxx limie <span class="hljs-number">10000</span>,<span class="hljs-number">10</span> )<br><span class="hljs-keyword">using</span> id;<br></code></pre></td></tr></table></figure></li></ol><h2><span id="分库分表后查询规范"><strong>分库分表后查询规范</strong></span></h2><ul><li>禁用语句</li></ul><ol><li>分表后尽量只查询，或者根据 id update，避免范围修改，严禁莽撞的跨区修改。</li><li>禁止，子查询，group by，order by</li><li>禁止，悲观锁，使用Redisson替代数据库悲观锁（尽量使用无锁方法处理业务逻辑）。</li><li>禁止，update sharding-key。update 分片键后可能会导致后面的查询找不到数据。</li><li>禁止，跨区 update 、delete [order by] limit 。 mycat会在多个节点执行 limit语句，造成过多删除。</li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>后端</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>mysql</tag>
+      
+      <tag>技术规范</tag>
+      
+      <tag>设计</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  
+</search>
