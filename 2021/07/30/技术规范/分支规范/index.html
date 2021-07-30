@@ -14,7 +14,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="目前我用着最舒服的分支管理">
+  <meta name="description" content="这是目前我们团队用着最舒服的分支管理；已经使用1年没有遇到明显的坑">
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      583 字
+      582 字
     </span>
   
 
@@ -241,28 +241,17 @@
 <p>一个master + N个 feature 分支 + N个 release 分支</p>
 <h4><span id="工作流程"> 工作流程</span></h4>
 <ol>
-<li>
-<p>开始工作前，从master 创建特性分支 feature/001，开始开发。</p>
-</li>
-<li>
-<p>开发完毕后，feature/001 提交 PR 到 release/qa， 此时开发者相互CR 其他人的 PR。</p>
-</li>
-<li>
-<p>CR完成后，合并所有PR，如果有冲突，重新提交无冲突的 PR，开始测试。</p>
-</li>
-<li>
-<p>测试完毕后</p>
+<li>开始工作前，从master 创建特性分支 feature/001，开始开发。</li>
+<li>开发完毕后，feature/001 提交 PR 到 release/qa， 此时开发者相互CR 其他人的 PR。</li>
+<li>CR完成后，合并所有PR，如果有冲突，重新提交无冲突的 PR，开始测试。</li>
+<li>测试完毕后
 <ol>
 <li>检查master 是否有更新，比如开发新特性的时候，master分支发生了hotfix。<br>如果有更新，则需要对 release/prod 进行回归测试。</li>
 <li>根据master 创新新分支 release/prod , 将 release/qa 合并到 release/prod</li>
 </ol>
 </li>
-<li>
-<p>使用 release/prod merge 到 master <br>此时墙裂建议使用idea diff code 功能，整体看一下本次的合并，有没有额外的脏代码<br>合并后，添加 tag ，开始上线流程。</p>
-</li>
-<li>
-<p>上线后，删除相关的 feature 分支，清理半年以前的tag，看日志，观察程序运行情况。</p>
-</li>
+<li>使用 release/prod merge 到 master <br>此时墙裂建议使用idea diff code 功能，整体看一下本次的合并，有没有额外的脏代码<br>合并后，添加 tag ，开始上线流程。</li>
+<li>上线后，删除相关的 feature 分支，清理半年以前的tag，看日志，观察程序运行情况。</li>
 </ol>
 <h4><span id="核心逻辑"> 核心逻辑</span></h4>
 <p>任何代码的改动，只能在feature 上push，其他分支的代码，如果需要响应改动<br>则通过 merge request 将变动传进来。</p>
@@ -274,7 +263,7 @@
 <h4><span id="工具"> 工具</span></h4>
 <ul>
 <li>阿里巴巴内部使用aone平台管理，对外发布的产品叫 <a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/153762.html?spm=5176.168087.J_7469444330.4.91376942pV1EvU">云效平台</a></li>
-<li>有赞qa平台，公交车发布系统，也借鉴了aoneFlow的思路<br> <a target="_blank" rel="noopener" href="https://tech.youzan.com/team/">3.4 公交车系统</a></li>
+<li>有赞qa平台，公交车发布系统，也借鉴了aoneFlow的思路<a target="_blank" rel="noopener" href="https://tech.youzan.com/team/">3.4 公交车系统</a></li>
 </ul>
 <h4><span id="参考介绍"> 参考介绍：</span></h4>
 <ul>
