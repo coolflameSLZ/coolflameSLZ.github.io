@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      845 字
+      875 字
     </span>
   
 
@@ -246,24 +246,13 @@
 </ol>
 <h2><span id="索引规范"> <strong>索引规范</strong></span></h2>
 <ol>
-<li>
-<p>联合索引的字段数目不能超过5，单表索引数量也不能超过5，索引设计遵循B+ Tree最左前匹配原则</p>
-</li>
-<li>
-<p>对一个VARCHAR(N)列创建索引时，通常取其50%（甚至更小）左右长度创建前缀索引就足以满足80%以上的查询需求了，没必要创建整列的全长度索引</p>
-</li>
-<li>
-<p>根据业务命名空间的顺序构造联合索引，比如 productId/userId/serviceId/time/xxx</p>
-</li>
-<li>
-<p>order by ， group by 的字段需要建立索引，尽量不使用groupby，orderby 使用java进程完成此操作</p>
-</li>
-<li>
-<p>业务上的全局唯一字段，需要建立唯一索引</p>
-</li>
-<li>
-<p>事物中，如 SELECT * FROM yes WHERE name =‘yes’ FOR UPDATE; <br>通过等普通条件判断【name = xxx】进行筛选加锁时，则该列（name）需要加索引。否则容易锁表。</p>
-</li>
+<li>联合索引的字段数目不能超过5，单表索引数量也不能超过5，索引设计遵循B+ Tree最左前匹配原则</li>
+<li>对一个VARCHAR(N)列创建索引时，通常取其50%（甚至更小）左右长度创建前缀索引就足以满足80%以上的查询需求了，没必要创建整列的全长度索引</li>
+<li>根据业务命名空间的顺序构造联合索引，比如 productId/userId/serviceId/time/xxx</li>
+<li>order by ， group by 的字段需要建立索引，尽量不使用groupby，orderby 使用java进程完成此操作</li>
+<li>业务上的全局唯一字段，需要建立唯一索引</li>
+<li>事物中，如 SELECT * FROM yes WHERE name =‘yes’ FOR UPDATE; <br>通过等普通条件判断【name = xxx】进行筛选加锁时，则该列（name）需要加索引。否则容易锁表。</li>
+<li>索引是要建在尽量不改动的字段上，频繁的变动索引列，对系统压力较大</li>
 </ol>
 <h2><span id="sql开发规范"> <strong>SQL开发规范</strong></span></h2>
 <ol>

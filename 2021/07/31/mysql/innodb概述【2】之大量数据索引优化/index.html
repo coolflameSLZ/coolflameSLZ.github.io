@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      428 字
+      2.1k 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      6
+      28
        分钟
     </span>
   
@@ -233,27 +233,68 @@
 <hr>
 <h2><span id="索引原理"> 索引原理</span></h2>
 <h3><span id="聚簇索引"> 聚簇索引</span></h3>
+<p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731010412.png" srcset="/img/loading.gif" lazyload alt="img"></p>
+<ul>
+<li>数据存储在主键索引中</li>
+<li>数据按主键顺序存储</li>
+</ul>
 <h3><span id="二级索引"> 二级索引</span></h3>
+<p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731151934.png" srcset="/img/loading.gif" lazyload alt="image-20210731151934246"></p>
+<ul>
+<li>
+<p>除了主键索引以外的所有，都是二级索引</p>
+</li>
+<li>
+<p>叶子中，存的是主键的值</p>
+</li>
+<li>
+<p>一次查询，需要经过2次的查询操作，2logN 复杂度。</p>
+</li>
+<li>
+<p>主键的大小，会影响索引的大小。</p>
+</li>
+<li>
+<p>对于叶子节点，存【主键值】，还是存【数据地址】的取舍：</p>
+<p>innodb可能需要回表查询，即在聚簇索引中进一步查找对应的数据行。这样可以避免在行移动或者插入新数据时出现的页分裂问题。</p>
+<p>MyISAM中无论是主键索引还是二级索引，索引的叶子节点存放的都是指向数据行的指针，保证可以通过索引进而查找到对应的数据行，只需要对索引进行一遍查找。但这样会存在页分裂问题。</p>
+</li>
+</ul>
 <h3><span id="联合索引"> 联合索引</span></h3>
-<h3><span id="数据量与b树的层高关系"> 数据量与B+树的层高关系</span></h3>
-<ol>
-<li>每个 page 都有一个 level，leaf page 的 level 是 0，root page 的 level 取决于整个 B+Tree 的高度。</li>
-<li>因为页存储有 「空洞」 现象，所以不是非常固定的</li>
-<li>根据主键的有序性，页分裂的情况，会少存许多数据。</li>
-<li>一般来说 当数据为理论值的 2/3 时， 树就开始加一层了。</li>
-</ol>
-<p>已知：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731153830.png" srcset="/img/loading.gif" lazyload alt="image-20210731153830652"></p>
 <ul>
-<li>单行数据为n byte ，每页存 (16000  / n ) 条记录，那么：
+<li>一个索引只创造1课树</li>
+<li>假设有2列，就把量列拼接起来，(A:B) 形成一个长的组合索引</li>
+<li>先通过A查找，找到后再通过B查找</li>
+<li><strong>总结：</strong>
 <ul>
-<li>int 主键，每页1203个子节点索引指针。</li>
-<li>bigint 主键，每页900个子节点索引指针。</li>
-<li>单行数据为 n byte ，每个page存 (16000  / n ) 条记录，</li>
+<li>如果不是按照最左开始查找，则无法使用索引，比如本例无法直接通过B查找</li>
+<li>如果是范围查找，则后面的列，无法使用索引。</li>
 </ul>
 </li>
-<li>假设1 row数据 300byte，每个page 存50条 数据。</li>
 </ul>
-<p><strong>计算公式为 ：</strong></p>
+<h2><span id="索引优化分析"> 索引优化分析</span></h2>
+<h3><span id="存储空间-数据量与b树的层高关系"> 存储空间 （数据量与B+树的层高关系）</span></h3>
+<ul>
+<li>每个 page 都有一个 level，leaf page 的 level 是 0，root page 的 level 取决于整个 B+Tree 的高度。</li>
+<li>因为页存储有 「空洞」 现象，所以不是非常固定的</li>
+<li>一般来说 当数据为理论值的 2/3 时， 树就开始加一层了。</li>
+</ul>
+<p>已知：</p>
+<ul>
+<li>
+<p>Int 类型主键，每页可以存 1203 个子节点指针。</p>
+</li>
+<li>
+<p>bigint 类型主键，每页可以存 900 个子节点指针。</p>
+</li>
+<li>
+<p>对于最下面一层的叶子节点：</p>
+<ul>
+<li>单行数据为 n byte ，每个page存 (16000  / n ) 条记录<br> 假如 1 行数据 300 byte，每个page 存 (16000  / n = 50）行数据。</li>
+</ul>
+</li>
+</ul>
+<p><strong>层高计算公式 ：</strong></p>
 <p><em><em>总行数 = （每页指针数） ^（几层）</em> 每页行数</em>*</p>
 <p>当主键为 int (4 byte) 类型时，极限值为</p>
 <table>
@@ -350,6 +391,138 @@
 </tbody>
 </table>
 <p>参考：<a target="_blank" rel="noopener" href="https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/">https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/</a></p>
+<h3><span id="主键选择"> 主键选择</span></h3>
+<ul>
+<li>
+<p>自增主键</p>
+<ul>
+<li>顺序写入，效率高</li>
+<li>每次查询都走2级索引</li>
+</ul>
+</li>
+<li>
+<p>随机主键</p>
+<ul>
+<li>节点分裂，数据移动，效率比较低</li>
+<li>有可能查询走2级索引</li>
+</ul>
+</li>
+<li>
+<p>业务主键，比如订单号，用户id，商品id，等</p>
+<ul>
+<li>需要保证值是递增，一般情况下使用雪花算法即可</li>
+<li>写入，查询磁盘利用率都高，可以使用一级索引</li>
+</ul>
+</li>
+<li>
+<p>联合主键</p>
+<ul>
+<li>影响索引列大小，不容易维护，不建议使用</li>
+</ul>
+</li>
+</ul>
+<h3><span id="联合索引使用"> 联合索引使用</span></h3>
+<ul>
+<li>按索引区分度排序，区分度越高的放在前面。<br>比如主键，时间，外键，手机号，身份证号等。<br>索引区分度低的有，类型，状态等</li>
+<li>覆盖索引，我们要查询的数据，正好在索引中，那么就不用回表了<br>比如一个索引 （id,phone,addr），在执行 <code>select phone，addr from user where id = 8;</code> 时<br>可以不用回表，直接返回结果集，又称三星索引。</li>
+<li>索引下推，mysql 5.6推出的性能改进，减少回表的次数，本该如此，不必细聊。</li>
+</ul>
+<h3><span id="索引避坑指南"> 索引避坑指南</span></h3>
+<ul>
+<li>
+<p>设置合理的长度</p>
+<ul>
+<li>
+<p>前10个字符建索引就行，如果前10个字符都体现不出区分度，那么这个数据本身也有点问题<br></p>
+</li>
+<li>
+<p>解决方案，对于区分度不大的列，再建立一个 hash 值列，通过索引（hash(addr),addr）查找就快了</p>
+</li>
+</ul>
+</li>
+<li>
+<p>索引失效的情况</p>
+<ul>
+<li>
+<p>A = XX or B=xx 索引会失效么？<br>不会失效，<br> mysql 5.1 引入了Index merge 技术，已经可以同时对 1个表使用多个索引分别扫描，1次出结果</p>
+</li>
+<li>
+<p>在联合索引中使用第二列，比如（phone，id_card_num）<br>使用<code>select * from user where id_card_num= 3701xxxxxx</code> 就不走索引</p>
+</li>
+<li>
+<p>隐式类型转换，不走索引<br></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">-- type moblie Long<br>-- 就不走索引<br>select * from user where moblie= &#x27;186123232222&#x27;<br></code></pre></div></td></tr></table></figure>
+<p>类型转换的时候，不使用索引。<br>上线前跑一遍查询计划，看看有没有这事，这个事很容易发生，但不容易发现。</p>
+</li>
+<li>
+<p>索引列包含计算，不走索引</p>
+</li>
+</ul>
+  <figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">select * from user where age-20 = 30;<br>-- 没有人会这么干，如果有人这么干，必须请大家吃饭<br></code></pre></div></td></tr></table></figure>
+<ul>
+<li>
+<p>索引区分度低，有时候也不走索引<br>当索引的区分度过低，比如 sex ，if_old , sell_status 列，使用sql语句<br><code>select * from user where sex=1 and phone=18678922342</code><br>通过 sex 索引查询，要频繁的回表，这时候使用索引查询，还不如直接使用全表扫描更快。<br></p>
+</li>
+<li>
+<p>查询条件，覆盖所有的索引值。也不会走本列索引<br>比如，有个 age 字段，使用sql语句，<code>select * from user where age &lt; 200</code><br>的时候，因为查询语句中的条件已经全部覆盖了整个数据集。<br>所以mysql也不会使用该索引。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3><span id="column类型最佳实践"> column类型最佳实践</span></h3>
+<ul>
+<li>数据库字符集使用 utf8mb4</li>
+<li>VARCHAR 按实际需要分配长度 ，255以上，需要更多的而空间描述长度，浪费空间</li>
+<li>文本字段建议使用 VARCHAR</li>
+<li>时间 字段使用 long，兼容性好，要不然迁移的时候，time类型有时区概念，容易出现bug</li>
+<li>bool字段使用tinyint</li>
+<li>枚举字段建议使用 tinyint</li>
+<li>交易金额 建议使用 long，存成分已足够，￥1.01存成 101</li>
+<li>禁止使用 “%” 前导的查询</li>
+<li>禁止在索引列进行数学运算，会导致索引失效</li>
+</ul>
+<h3><span id="索引类型最佳实践"> 索引类型最佳实践</span></h3>
+<ul>
+<li>表必须有主键，建议使用业务主键，使用雪花算法保证自增。</li>
+<li>单张表中索引数量不超过5个</li>
+<li>单个索引字段数不超过5个</li>
+<li>字符串索引使用前缀索引，前缀长度不超过10个字符</li>
+</ul>
+<h3><span id="是否分表的最佳实践"> 是否分表的最佳实践</span></h3>
+<h4><span id="分表阈值"> 分表阈值</span></h4>
+<ul>
+<li>在线服务，单表超过1000万，考虑分表</li>
+</ul>
+<h4><span id="分表的方式"> 分表的方式</span></h4>
+<ul>
+<li>
+<p>取模：存储相对均匀，访问也均匀，用户数据一般这样分，</p>
+</li>
+<li>
+<p>宽表拆成窄表，假如有一个宽表，有的列需要频繁改动，则拆出去。<br>比如 user <code>uid , nickname, img_url, userswitch</code> 其中userswitch 是一个64位Long类型，<br>描述了用户的很多开关，比如是否允许被加好友，是否允许被搜索到，是否允许xxx等<br>可以拆成 user_extra 来单拎出来，进行查询 or 修改</p>
+</li>
+<li>
+<p>按时间：冷热库拆分，订单场景。</p>
+</li>
+</ul>
+<h4><span id="分库的方式"> 分库的方式</span></h4>
+<ul>
+<li>按业务垂直分，用户库，商品库，订单库。防止某个业务把整个数据库压垮</li>
+<li>水平分成多个库，一般伴随着分表进行，<br>比如一个表分成128个表，再分成4个库进行存储。</li>
+</ul>
+<h3><span id="分表最佳实践"> 分表最佳实践</span></h3>
+<h4><span id="用户库分表"> 用户库分表</span></h4>
+<ul>
+<li>选择合适的分片键， 一般通过uid分片</li>
+</ul>
+<h4><span id="商品库分表"> 商品库分表</span></h4>
+<ul>
+<li>基因注入法</li>
+</ul>
+<h4><span id="系统消息分表"> 系统消息分表</span></h4>
+<ul>
+<li>冷热数据分表<br>假如系统消息有效期为30天，按月分库。msg_1901，msg_1902，msg_1903。。。。<br>如果查询的时候30天的数据，则需要查询2个表，不舒服。<br>可用用双写的方案，当月数据也写到下月的数据表中。<br>查询的时候，则查询本月数据表，本月数据表中，自然携带上月的数据。</li>
+</ul>
 
             </div>
             <hr>
