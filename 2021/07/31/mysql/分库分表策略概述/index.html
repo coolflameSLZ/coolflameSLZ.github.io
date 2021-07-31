@@ -14,11 +14,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="去吧，把服务照明">
+  <meta name="description" content="本章主要讲大量数据的分库分表">
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-  <title>监控规范 - Hexo</title>
+  <title>分库分表策略概述 - Hexo</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
 
@@ -163,7 +163,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="监控规范">
+            <span class="h2" id="subtitle" title="分库分表策略概述">
               
             </span>
 
@@ -173,8 +173,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-07-30 17:27" pubdate>
-        2021年7月30日 下午
+      <time datetime="2021-07-31 21:36" pubdate>
+        2021年7月31日 晚上
       </time>
     </span>
   
@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      385 字
+      537 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      5
+      7
        分钟
     </span>
   
@@ -225,292 +225,115 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">监控规范</h1>
+            <h1 style="display: none">分库分表策略概述</h1>
             
             <div class="markdown-body">
-              <p>去吧，把服务照明</p>
+              <p>本章主要讲大量数据的分库分表</p>
 <span id="more"></span>
 <hr>
-<h2><span id="常见监控点"> 常见监控点</span></h2>
-<h3><span id="系统层"> 系统层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>虚拟机监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>容器监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="网络层"> 网络层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>监控专线带宽</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>交换机基本情况</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>网络延迟</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="中间件"> 中间件</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>注册中心</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>mysql</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>redis</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>es</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="应用程序本身"> 应用程序本身</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>jvm</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>GC</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>内存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>线程</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>队列</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>缓存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>可用性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>业务正确性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2><span id="日志规范"> 日志规范</span></h2>
-<h4><span id="日志规范"> 日志规范</span></h4>
-<ol>
-<li>对外服务接口，所有if分支需要打印日志</li>
-<li>使用日志异步配置</li>
-<li>禁止打印全部实体，打印实体id即可，实体关键属性即可</li>
-<li>打印traceId</li>
-</ol>
-<h4><span id="日志分级"> 日志分级</span></h4>
+<h2><span id="什么时候考虑分表"> 什么时候考虑分表</span></h2>
 <ul>
-<li>DEBUG 用于开发调试；敏感信息一律使用debug。</li>
-<li>INFO 用于重要流程信息；if 各种分支</li>
-<li>WARN 用于需要关注但无需报警的问题；一般是为了方便排查的日志。</li>
-<li>ERROR 需要报警的异常；一般是系统异常、需要人工介入的业务异常</li>
+<li>在线服务，单表超过1000万，考虑分表</li>
 </ul>
-<h4><span id="日志分割"> 日志分割</span></h4>
-<p>近期（7天内）日志，根据日期&amp;大小分割，保存日志原文。<br>如果有日志平台，则不需要保存长期日志<br>没有日志平台的话，需要保存30天日志，根据日期分割，使用压缩格式，文件中要体现时间。</p>
-<h4><span id="日志中的信息"> 日志中的信息</span></h4>
+<h2><span id="分库分表的方式"> 分库分表的方式</span></h2>
+<h3><span id="分表方式"> 分表方式</span></h3>
 <ul>
-<li></li>
+<li>
+<p>取模：存储相对均匀，访问也均匀，用户数据一般这样分，</p>
+</li>
+<li>
+<p>宽表拆成窄表，假如有一个宽表，有的列需要频繁改动，则拆出去。<br>比如 user <code>uid , nickname, img_url, userswitch</code> 其中userswitch 是一个64位Long类型，<br>描述了用户的很多开关，比如是否允许被加好友，是否允许被搜索到，是否允许xxx等<br>可以拆成 user_extra 来单拎出来，进行查询 or 修改</p>
+</li>
+<li>
+<p>按时间：冷热库拆分，订单场景。</p>
+</li>
+</ul>
+<h3><span id="分库的方式"> 分库的方式</span></h3>
+<ul>
+<li>按业务垂直分，用户库，商品库，订单库。防止某个业务把整个数据库压垮</li>
+<li>水平分成多个库，一般伴随着分表进行，<br>比如一个表分成128个表，再分成4个库进行存储。</li>
+</ul>
+<h2><span id="分表最佳实践"> 分表最佳实践</span></h2>
+<h3><span id="用户库分表"> 用户库分表</span></h3>
+<ul>
+<li>选择合适的分片键， 一般通过uid分片</li>
+</ul>
+<h3><span id="商品库分表"> 商品库分表</span></h3>
+<ul>
+<li>基因注入法 【todo】</li>
+</ul>
+<h3><span id="系统消息分表"> 系统消息分表</span></h3>
+<ul>
+<li>冷热数据分表<br>假如系统消息有效期为30天，按月分库。msg_1901，msg_1902，msg_1903。。。。<br>如果查询的时候30天的数据，则需要查询2个表，不舒服。<br>可用用双写的方案，当月数据也写到下月的数据表中。<br>查询的时候，则查询本月数据表，本月数据表中，自然携带上月的数据。</li>
+</ul>
+<h2><span id="sharding-sphere应用实践"> Sharding Sphere应用实践</span></h2>
+<h3><span id="分库分表带来的问题"> 分库分表带来的问题</span></h3>
+<ul>
+<li>
+<p>查询路由问题</p>
+<ul>
+<li>分表规则</li>
+<li>写入路由</li>
+<li>查询路由</li>
+<li>分页查询方案</li>
+</ul>
+</li>
+<li>
+<p>Sharding Sphere 选型</p>
+<ul>
+<li>
+<p>sharding sphere ，从业务进程内，对sql进行改写。</p>
+</li>
+<li>
+<p>sharding proxy，代理访问数据库，使得访问变得透明。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>sharding-jdbc</th>
+<th>sharding-proxy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据库</td>
+<td>任意<br>只要JDBC支持的库<br>他都支持</td>
+<td>仅mysql</td>
+</tr>
+<tr>
+<td>异构语言</td>
+<td>仅支持java</td>
+<td>任意语言</td>
+</tr>
+<tr>
+<td>连接数</td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>损耗低</td>
+<td>损耗略高</td>
+</tr>
+<tr>
+<td>去中心化</td>
+<td>是</td>
+<td>否</td>
+</tr>
+<tr>
+<td>静态入口<br>Navicat直接访问</td>
+<td>无</td>
+<td>有</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p>最终选型，全家桶方案</p>
+<img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731215348.png" srcset="/img/loading.gif" lazyload style="zoom:50%;">
+</li>
 </ul>
 
             </div>
@@ -521,7 +344,9 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/">mysql</a>
                     
                   </div>
                 
@@ -529,9 +354,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/">技术规范</a>
-                    
-                      <a class="hover-with-bg" href="/tags/devOps/">devOps</a>
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">分库分表</a>
                     
                   </div>
                 
@@ -548,9 +371,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2021/07/30/mysql/innodb%E5%AD%98%E5%82%A8%E5%AE%9E%E7%8E%B0/">
+                      <a href="/2021/07/31/mysql/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">innodb存储实现</span>
+                        <span class="hidden-mobile">分布式事务解决方案</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -558,8 +381,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2021/07/30/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/%E7%94%9F%E4%BA%A7%E5%B0%B1%E7%BB%AA%E5%A4%87%E5%BF%98%E6%B8%85%E5%8D%95/">
-                        <span class="hidden-mobile">生产就绪备忘清单</span>
+                      <a href="/2021/07/31/mysql/innodb%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/">
+                        <span class="hidden-mobile">innodb索引优化</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

@@ -4,23 +4,106 @@
   
     
     <entry>
-      <title>innodb概述【2】之大量数据索引优化</title>
-      <link href="/2021/07/31/mysql/innodb%E6%A6%82%E8%BF%B0%E3%80%902%E3%80%91%E4%B9%8B%E5%A4%A7%E9%87%8F%E6%95%B0%E6%8D%AE%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/"/>
-      <url>/2021/07/31/mysql/innodb%E6%A6%82%E8%BF%B0%E3%80%902%E3%80%91%E4%B9%8B%E5%A4%A7%E9%87%8F%E6%95%B0%E6%8D%AE%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/</url>
+      <title>注册中心的选型与设计</title>
+      <link href="/2021/07/31/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E7%9A%84%E9%80%89%E5%9E%8B%E4%B8%8E%E8%AE%BE%E8%AE%A1/"/>
+      <url>/2021/07/31/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E7%9A%84%E9%80%89%E5%9E%8B%E4%B8%8E%E8%AE%BE%E8%AE%A1/</url>
       
-        <content type="html"><![CDATA[<p>本章主要介绍 innodb 引擎的大量数据索引优化</p><span id="more"></span><hr><h2><span id="索引原理"> 索引原理</span></h2><h3><span id="聚簇索引"> 聚簇索引</span></h3><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731010412.png" alt="img"></p><ul><li>数据存储在主键索引中</li><li>数据按主键顺序存储</li></ul><h3><span id="二级索引"> 二级索引</span></h3><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731151934.png" alt="image-20210731151934246"></p><ul><li><p>除了主键索引以外的所有，都是二级索引</p></li><li><p>叶子中，存的是主键的值</p></li><li><p>一次查询，需要经过2次的查询操作，2logN 复杂度。</p></li><li><p>主键的大小，会影响索引的大小。</p></li><li><p>对于叶子节点，存【主键值】，还是存【数据地址】的取舍：</p><p>innodb可能需要回表查询，即在聚簇索引中进一步查找对应的数据行。这样可以避免在行移动或者插入新数据时出现的页分裂问题。</p><p>MyISAM中无论是主键索引还是二级索引，索引的叶子节点存放的都是指向数据行的指针，保证可以通过索引进而查找到对应的数据行，只需要对索引进行一遍查找。但这样会存在页分裂问题。</p></li></ul><h3><span id="联合索引"> 联合索引</span></h3><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731153830.png" alt="image-20210731153830652"></p><ul><li>一个索引只创造1课树</li><li>假设有2列，就把量列拼接起来，(A:B) 形成一个长的组合索引</li><li>先通过A查找，找到后再通过B查找</li><li><strong>总结：</strong><ul><li>如果不是按照最左开始查找，则无法使用索引，比如本例无法直接通过B查找</li><li>如果是范围查找，则后面的列，无法使用索引。</li></ul></li></ul><h2><span id="索引优化分析"> 索引优化分析</span></h2><h3><span id="存储空间-数据量与b树的层高关系"> 存储空间 （数据量与B+树的层高关系）</span></h3><ul><li>每个 page 都有一个 level，leaf page 的 level 是 0，root page 的 level 取决于整个 B+Tree 的高度。</li><li>因为页存储有 「空洞」 现象，所以不是非常固定的</li><li>一般来说 当数据为理论值的 2/3 时， 树就开始加一层了。</li></ul><p>已知：</p><ul><li><p>Int 类型主键，每页可以存 1203 个子节点指针。</p></li><li><p>bigint 类型主键，每页可以存 900 个子节点指针。</p></li><li><p>对于最下面一层的叶子节点：</p><ul><li>单行数据为 n byte ，每个page存 (16000  / n ) 条记录<br> 假如 1 行数据 300 byte，每个page 存 (16000  / n = 50）行数据。</li></ul></li></ul><p><strong>层高计算公式 ：</strong></p><p><em><em>总行数 = （每页指针数） ^（几层）</em> 每页行数</em>*</p><p>当主键为 int (4 byte) 类型时，极限值为</p><table><thead><tr><th>高度</th><th>多少个<br>索引页<br>（非叶子）</th><th>多少个<br>数据页<br>（叶子）</th><th>每页能存<br>几个记录</th><th>得到的行数</th><th>数据大小大小</th></tr></thead><tbody><tr><td>1（0+1）</td><td>0</td><td>1</td><td>50</td><td>50</td><td>16k</td></tr><tr><td>2（1+1）</td><td>1</td><td>1203</td><td>50</td><td>6万</td><td>18MB</td></tr><tr><td>3（2+1）</td><td>1204</td><td>1,447,209</td><td>50</td><td>7亿</td><td>22G</td></tr><tr><td>4（3+1）</td><td>1,447,209</td><td>17亿</td><td>50</td><td>850亿</td><td>25T</td></tr></tbody></table><p>当主键为 bigint (8 byte) 类型时，极限值为</p><table><thead><tr><th>高度</th><th>多少个<br>索引页<br>（非叶子）</th><th>多少个<br>数据页<br>（叶子）</th><th>每页能存<br>几个记录</th><th>得到的行数</th><th>数据大小大小</th></tr></thead><tbody><tr><td>1（0+1）</td><td>0</td><td>1</td><td>50</td><td>50</td><td>16k</td></tr><tr><td>2（1+1）</td><td>1</td><td>928</td><td>50</td><td>46400</td><td>18MB</td></tr><tr><td>3（2+1）</td><td>928</td><td>861,184</td><td>50</td><td>4000万</td><td>22G</td></tr><tr><td>4（3+1）</td><td>861,184</td><td>8亿</td><td>50</td><td>40亿</td><td>25T</td></tr></tbody></table><p>参考：<a href="https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/">https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/</a></p><h3><span id="主键选择"> 主键选择</span></h3><ul><li><p>自增主键</p><ul><li>顺序写入，效率高</li><li>每次查询都走2级索引</li></ul></li><li><p>随机主键</p><ul><li>节点分裂，数据移动，效率比较低</li><li>有可能查询走2级索引</li></ul></li><li><p>业务主键，比如订单号，用户id，商品id，等</p><ul><li>需要保证值是递增，一般情况下使用雪花算法即可</li><li>写入，查询磁盘利用率都高，可以使用一级索引</li></ul></li><li><p>联合主键</p><ul><li>影响索引列大小，不容易维护，不建议使用</li></ul></li></ul><h3><span id="联合索引使用"> 联合索引使用</span></h3><ul><li>按索引区分度排序，区分度越高的放在前面。<br>比如主键，时间，外键，手机号，身份证号等。<br>索引区分度低的有，类型，状态等</li><li>覆盖索引，我们要查询的数据，正好在索引中，那么就不用回表了<br>比如一个索引 （id,phone,addr），在执行 <code>select phone，addr from user where id = 8;</code> 时<br>可以不用回表，直接返回结果集，又称三星索引。</li><li>索引下推，mysql 5.6推出的性能改进，减少回表的次数，本该如此，不必细聊。</li></ul><h3><span id="索引避坑指南"> 索引避坑指南</span></h3><ul><li><p>设置合理的长度</p><ul><li><p>前10个字符建索引就行，如果前10个字符都体现不出区分度，那么这个数据本身也有点问题<br></p></li><li><p>解决方案，对于区分度不大的列，再建立一个 hash 值列，通过索引（hash(addr),addr）查找就快了</p></li></ul></li><li><p>索引失效的情况</p><ul><li><p>A = XX or B=xx 索引会失效么？<br>不会失效，<br> mysql 5.1 引入了Index merge 技术，已经可以同时对 1个表使用多个索引分别扫描，1次出结果</p></li><li><p>在联合索引中使用第二列，比如（phone，id_card_num）<br>使用<code>select * from user where id_card_num= 3701xxxxxx</code> 就不走索引</p></li><li><p>隐式类型转换，不走索引<br></p><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">-- type moblie Long<br>-- 就不走索引<br>select * from user where moblie= &#x27;186123232222&#x27;<br></code></pre></div></td></tr></table></figure><p>类型转换的时候，不使用索引。<br>上线前跑一遍查询计划，看看有没有这事，这个事很容易发生，但不容易发现。</p></li><li><p>索引列包含计算，不走索引</p></li></ul>  <figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">select * from user where age-20 = 30;<br>-- 没有人会这么干，如果有人这么干，必须请大家吃饭<br></code></pre></div></td></tr></table></figure><ul><li><p>索引区分度低，有时候也不走索引<br>当索引的区分度过低，比如 sex ，if_old , sell_status 列，使用sql语句<br><code>select * from user where sex=1 and phone=18678922342</code><br>通过 sex 索引查询，要频繁的回表，这时候使用索引查询，还不如直接使用全表扫描更快。<br></p></li><li><p>查询条件，覆盖所有的索引值。也不会走本列索引<br>比如，有个 age 字段，使用sql语句，<code>select * from user where age &lt; 200</code><br>的时候，因为查询语句中的条件已经全部覆盖了整个数据集。<br>所以mysql也不会使用该索引。</p></li></ul></li></ul><h3><span id="column类型最佳实践"> column类型最佳实践</span></h3><ul><li>数据库字符集使用 utf8mb4</li><li>VARCHAR 按实际需要分配长度 ，255以上，需要更多的而空间描述长度，浪费空间</li><li>文本字段建议使用 VARCHAR</li><li>时间 字段使用 long，兼容性好，要不然迁移的时候，time类型有时区概念，容易出现bug</li><li>bool字段使用tinyint</li><li>枚举字段建议使用 tinyint</li><li>交易金额 建议使用 long，存成分已足够，￥1.01存成 101</li><li>禁止使用 “%” 前导的查询</li><li>禁止在索引列进行数学运算，会导致索引失效</li></ul><h3><span id="索引类型最佳实践"> 索引类型最佳实践</span></h3><ul><li>表必须有主键，建议使用业务主键，使用雪花算法保证自增。</li><li>单张表中索引数量不超过5个</li><li>单个索引字段数不超过5个</li><li>字符串索引使用前缀索引，前缀长度不超过10个字符</li></ul><h3><span id="是否分表的最佳实践"> 是否分表的最佳实践</span></h3><h4><span id="分表阈值"> 分表阈值</span></h4><ul><li>在线服务，单表超过1000万，考虑分表</li></ul><h4><span id="分表的方式"> 分表的方式</span></h4><ul><li><p>取模：存储相对均匀，访问也均匀，用户数据一般这样分，</p></li><li><p>宽表拆成窄表，假如有一个宽表，有的列需要频繁改动，则拆出去。<br>比如 user <code>uid , nickname, img_url, userswitch</code> 其中userswitch 是一个64位Long类型，<br>描述了用户的很多开关，比如是否允许被加好友，是否允许被搜索到，是否允许xxx等<br>可以拆成 user_extra 来单拎出来，进行查询 or 修改</p></li><li><p>按时间：冷热库拆分，订单场景。</p></li></ul><h4><span id="分库的方式"> 分库的方式</span></h4><ul><li>按业务垂直分，用户库，商品库，订单库。防止某个业务把整个数据库压垮</li><li>水平分成多个库，一般伴随着分表进行，<br>比如一个表分成128个表，再分成4个库进行存储。</li></ul><h3><span id="分表最佳实践"> 分表最佳实践</span></h3><h4><span id="用户库分表"> 用户库分表</span></h4><ul><li>选择合适的分片键， 一般通过uid分片</li></ul><h4><span id="商品库分表"> 商品库分表</span></h4><ul><li>基因注入法</li></ul><h4><span id="系统消息分表"> 系统消息分表</span></h4><ul><li>冷热数据分表<br>假如系统消息有效期为30天，按月分库。msg_1901，msg_1902，msg_1903。。。。<br>如果查询的时候30天的数据，则需要查询2个表，不舒服。<br>可用用双写的方案，当月数据也写到下月的数据表中。<br>查询的时候，则查询本月数据表，本月数据表中，自然携带上月的数据。</li></ul>]]></content>
+        <content type="html"><![CDATA[<p>这是摘要</p><span id="more"></span><hr><h1><span id="注册中心的选型与设计"> 注册中心的选型与设计</span></h1><h2><span id="注册中心的作用设计分析"> 注册中心的作用设计分析</span></h2><h3><span id="没有注册中心的解决方案"> 没有注册中心的解决方案</span></h3><ul><li>通过全局配置文件，来规定服务ip的调用关系。<br>迁移、扩容的时候非常痛苦。</li></ul><h3><span id="注册中心的主要功能"> 注册中心的主要功能</span></h3><ul><li><p>获取服务信息比如：</p><ul><li>路由信息，服务注册节点的IP，端口。</li><li>服务元数据信息，序列化协议，负载均衡规则，节点权重等</li></ul></li><li><p>服务发现，节点刷新的方案：</p><ul><li><p>启动时拉：消费方启动后，先从注册中心获取提供方的节点列表</p></li><li><p>通知回调：提供方的节点变更时，主动调用消费方，让消费方重新拉取节点数据</p></li><li><p>轮询拉取：回调不一定总是成功，所以需要兜底策略：轮询，分钟级别。</p></li></ul></li><li><p>主动通知调用方，服务节点发生变更</p></li></ul><h3><span id="健康检查"> 健康检查</span></h3><ul><li><p>一般情况下的服务失效原因</p><ol><li>部署重启，正常下线，可以主动通知注册中心</li><li>服务异常终止，比如机器掉电，无法主动通知下线事件</li><li>服务假死（注册中心线程可用，但工作线程不可用，表现起来就是依然可用向注册中心发心跳，但业务接口已经卡死不可用。）</li></ol></li><li><p>注册中心监控不健康节点的方案</p><ul><li>主动下线，能解决1</li><li>心跳上报，能解决 1，2</li><li>注册中心，主动探活，探测工作线程是否可用。能解决 1，2，3</li><li>consumer 通过正常调用，也可以感知到对方服务是否假死。<br>也通过consumer上报异常，解决  1，2，3</li></ul></li></ul><h3><span id="注册中心的设计"> 注册中心的设计</span></h3><ul><li><p>业务模型</p><ul><li>消费者视角，主要关心的是服务的提供者的ip地址。</li><li>提供者的角度，主要关系的是，本服务被哪些消费者注册消费了，方便提供者节点上下线的时候，主动通知消费者</li></ul><figure class="highlight json"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs json">&#123;<br>    <span class="hljs-attr">&quot;providerList&quot;</span>: [<br>        &#123;<br>            <span class="hljs-attr">&quot;serverName&quot;</span>: <span class="hljs-string">&quot;orderSvr&quot;</span>,<br>            <span class="hljs-attr">&quot;consumerList&quot;</span>: <span class="hljs-string">&quot;userSvr,addrSvr,productSvr&quot;</span><br>        &#125;,<br>        &#123;<br>            <span class="hljs-attr">&quot;serverName&quot;</span>: <span class="hljs-string">&quot;addrSvr&quot;</span>,<br>            <span class="hljs-attr">&quot;consumerList&quot;</span>: <span class="hljs-string">&quot;userSvr,addrSvr,productSvr&quot;</span><br>        &#125;<br>    ],<br>    <span class="hljs-attr">&quot;consumerList&quot;</span>: [<br>        &#123;<br>            <span class="hljs-attr">&quot;serverName&quot;</span>: <span class="hljs-string">&quot;userSvr&quot;</span>,<br>            <span class="hljs-attr">&quot;providerList&quot;</span>: <span class="hljs-string">&quot;orderSvr,addrSvr,productSvr&quot;</span><br>        &#125;,<br>        &#123;<br>            <span class="hljs-attr">&quot;serverName&quot;</span>: <span class="hljs-string">&quot;orderSvr&quot;</span>,<br>            <span class="hljs-attr">&quot;providerList&quot;</span>: <span class="hljs-string">&quot;userSvr,addrSvr,productSvr&quot;</span><br><br>        &#125;<br>    ],<br>    <span class="hljs-attr">&quot;ipList&quot;</span>: [<br>        &#123;<br>            <span class="hljs-attr">&quot;serverName&quot;</span>: <span class="hljs-string">&quot;orderSvr&quot;</span>,<br>            <span class="hljs-attr">&quot;ipList&quot;</span>: <span class="hljs-string">&quot;xxxx,xxxx,xxxx&quot;</span>,<br>            <span class="hljs-attr">&quot;port&quot;</span>: <span class="hljs-string">&quot;8081&quot;</span><br>        &#125;,<br>        &#123;<br>            <span class="hljs-attr">&quot;serverName&quot;</span>: <span class="hljs-string">&quot;userSvr&quot;</span>,<br>            <span class="hljs-attr">&quot;ipList&quot;</span>: <span class="hljs-string">&quot;xxxx,xxxx,xxxx&quot;</span>,<br>            <span class="hljs-attr">&quot;port&quot;</span>: <span class="hljs-string">&quot;8082&quot;</span><br>        &#125;<br>    ]<br>&#125;<br></code></pre></div></td></tr></table></figure></li><li><p>超时处理</p><ul><li><p>遍历扫描，以前的微服务注册中心，使用该方法即可，因为节点不多。</p></li><li><p>动态分组算法，节点数量较多时使用，一般应用在 IM 中 长连接 keepalive 超时主动清理的扫描机制， 节点以10万为单位。遍历肯定不行</p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210801012443.png" alt="image-20210801012442966" style="zoom:33%;"></li></ul><ol><li>该数据模型，如果n秒超时，有n个bucket。比如1分钟超时，就有60个bucket。</li><li>这样每一个连接的超时时间，就能确定的放到某一个bucket里面，比如现在是</li><li>有一个游标一直轮询bucket，</li></ol></li></ul><h2><span id="开源注册中心选型"> 开源注册中心选型</span></h2><h2><span id="nacos注册中心深入分析"> Nacos注册中心深入分析</span></h2><h2><span id="zookeeper实现深入剖析"> Zookeeper实现深入剖析</span></h2>]]></content>
       
       
       <categories>
           
-          <category> 数据库 </category>
+          <category> 后端 </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> mysql </tag>
+            <tag> 设计 </tag>
+            
+            <tag> 注册中心 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>分布式事务解决方案</title>
+      <link href="/2021/07/31/mysql/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"/>
+      <url>/2021/07/31/mysql/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</url>
+      
+        <content type="html"><![CDATA[<p>这是摘要</p><span id="more"></span><hr><h2><span id="分布式事务常见解决方案"> 分布式事务常见解决方案</span></h2><h3><span id="强一致协议"> 强一致协议</span></h3><ul><li><p>两阶段提交 2PC、三阶段提交 3PC</p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731230311.png" style="zoom:33%;"></li><li><p>落地方案：</p><ul><li><p>XA规范，是对两阶段提交的实现方案<br>资源管理器 - 事务参与者<br>事务管理器 - 事务协调者</p></li><li><p>XA规范，有十倍的性能衰减。</p><ul><li><p>有写锁，提交周期比较长</p></li><li><p>要求事务管理器，需要本地记录事务状态，机器挂了后，就不支持异地恢复。</p></li></ul></li></ul></li></ul><h3><span id="柔性事务"> 柔性事务</span></h3><ul><li>TCC 规范 （Try - Confirm - Cancel）<ul><li>尝试执行业务，预留资源<br>确认执行业务，使用Try阶段资源<br>取消执行业务，释放Try阶段预留的资源</li><li>缺点：<ul><li>业务逻辑复杂，新手不会写，老人写出来不能保证没bug。</li><li>这种东西，测试也不太好测试，线上风险太大。</li><li>业务逻辑写出bug的风险，比不同分布式事务，出问题的概率还要大得多</li></ul></li><li>TCC协议中，没有给出机器Try后，机器掉电的异常情况的处理方案，<br>本质上是个有缺陷的协议</li></ul></li><li>SAGA模型<ul><li>一个分布式事务拆分为多个本地事务<br>本地事务都有相应的执行模块和补偿模块<br>事务管理器负责在事务失败时调度执行补偿逻辑;</li><li>缺点：<ul><li>一个业务及要写正向业务逻辑，也要写出现异常的业务逻辑，工作量翻倍</li><li>即使有事务协调器，不能保证异常恢复逻辑，被精确一次执行，比如事务管理器，收到的异常执行结果为超时。</li><li>需要保证反向业务的幂等性，工作量也翻倍。</li><li>当异常回滚逻辑，第一次执行失败后，依然免不了人工介入。</li></ul></li></ul></li></ul><h3><span id="事务消息"> 事务消息</span></h3><ul><li><p>简化了分布式事务的模型，对业务友好</p></li><li><p>rocketMQ就有事务消息，可以拿来即用。</p></li></ul><h3><span id="seata-分布式事务流程"> Seata 分布式事务流程</span></h3><ul><li><strong>Seata 2PC模型</strong></li></ul><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731232847.png" alt="image-20210731232847753"></p><ul><li><p><strong>seata AT模型</strong></p><ul><li>介绍<ul><li>一种无侵入的分布式事务解决方案，2PC的广义实现。</li><li>源自阿里云GTS AT模式的开源版。</li></ul></li><li>核心价值<ul><li>低成本 : 编程模型不变，轻依赖不需要为分布式事务场景做特定设计。</li><li>高性能 : 一阶段提交，不阻塞;连接释放，保证整个系统的吞吐。</li><li>高可用 : 极端的异常情况下，可以暂时跳过异常事务，保证系统可用。</li></ul></li><li>实现方案</li></ul><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731233319.png" alt="image-20210731233319236" style="zoom:50%;"></li></ul><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731233418.png" alt="image-20210731233418204"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+          <category> mysql </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 分库分表 </tag>
+            
+            <tag> 分布式事务 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>分库分表策略概述</title>
+      <link href="/2021/07/31/mysql/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E7%AD%96%E7%95%A5%E6%A6%82%E8%BF%B0/"/>
+      <url>/2021/07/31/mysql/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E7%AD%96%E7%95%A5%E6%A6%82%E8%BF%B0/</url>
+      
+        <content type="html"><![CDATA[<p>本章主要讲大量数据的分库分表</p><span id="more"></span><hr><h2><span id="什么时候考虑分表"> 什么时候考虑分表</span></h2><ul><li>在线服务，单表超过1000万，考虑分表</li></ul><h2><span id="分库分表的方式"> 分库分表的方式</span></h2><h3><span id="分表方式"> 分表方式</span></h3><ul><li><p>取模：存储相对均匀，访问也均匀，用户数据一般这样分，</p></li><li><p>宽表拆成窄表，假如有一个宽表，有的列需要频繁改动，则拆出去。<br>比如 user <code>uid , nickname, img_url, userswitch</code> 其中userswitch 是一个64位Long类型，<br>描述了用户的很多开关，比如是否允许被加好友，是否允许被搜索到，是否允许xxx等<br>可以拆成 user_extra 来单拎出来，进行查询 or 修改</p></li><li><p>按时间：冷热库拆分，订单场景。</p></li></ul><h3><span id="分库的方式"> 分库的方式</span></h3><ul><li>按业务垂直分，用户库，商品库，订单库。防止某个业务把整个数据库压垮</li><li>水平分成多个库，一般伴随着分表进行，<br>比如一个表分成128个表，再分成4个库进行存储。</li></ul><h2><span id="分表最佳实践"> 分表最佳实践</span></h2><h3><span id="用户库分表"> 用户库分表</span></h3><ul><li>选择合适的分片键， 一般通过uid分片</li></ul><h3><span id="商品库分表"> 商品库分表</span></h3><ul><li>基因注入法 【todo】</li></ul><h3><span id="系统消息分表"> 系统消息分表</span></h3><ul><li>冷热数据分表<br>假如系统消息有效期为30天，按月分库。msg_1901，msg_1902，msg_1903。。。。<br>如果查询的时候30天的数据，则需要查询2个表，不舒服。<br>可用用双写的方案，当月数据也写到下月的数据表中。<br>查询的时候，则查询本月数据表，本月数据表中，自然携带上月的数据。</li></ul><h2><span id="sharding-sphere应用实践"> Sharding Sphere应用实践</span></h2><h3><span id="分库分表带来的问题"> 分库分表带来的问题</span></h3><ul><li><p>查询路由问题</p><ul><li>分表规则</li><li>写入路由</li><li>查询路由</li><li>分页查询方案</li></ul></li><li><p>Sharding Sphere 选型</p><ul><li><p>sharding sphere ，从业务进程内，对sql进行改写。</p></li><li><p>sharding proxy，代理访问数据库，使得访问变得透明。</p><table><thead><tr><th>对比项</th><th>sharding-jdbc</th><th>sharding-proxy</th></tr></thead><tbody><tr><td>数据库</td><td>任意<br>只要JDBC支持的库<br>他都支持</td><td>仅mysql</td></tr><tr><td>异构语言</td><td>仅支持java</td><td>任意语言</td></tr><tr><td>连接数</td><td>高</td><td>低</td></tr><tr><td>性能</td><td>损耗低</td><td>损耗略高</td></tr><tr><td>去中心化</td><td>是</td><td>否</td></tr><tr><td>静态入口<br>Navicat直接访问</td><td>无</td><td>有</td></tr></tbody></table></li></ul></li><li><p>最终选型，全家桶方案</p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731215348.png" style="zoom:50%;"></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+          <category> mysql </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 分库分表 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>innodb索引优化</title>
+      <link href="/2021/07/31/mysql/innodb%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/"/>
+      <url>/2021/07/31/mysql/innodb%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/</url>
+      
+        <content type="html"><![CDATA[<p>本章主要介绍 innodb 引擎的大量数据索引优化</p><span id="more"></span><hr><h2><span id="索引原理"> 索引原理</span></h2><h3><span id="聚簇索引"> 聚簇索引</span></h3><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731010412.png" alt="img"></p><ul><li>数据存储在主键索引中</li><li>数据按主键顺序存储</li></ul><h3><span id="二级索引"> 二级索引</span></h3><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731151934.png" alt="image-20210731151934246"></p><ul><li><p>除了主键索引以外的所有，都是二级索引</p></li><li><p>叶子中，存的是主键的值</p></li><li><p>一次查询，需要经过2次的查询操作，2logN 复杂度。</p></li><li><p>主键的大小，会影响索引的大小。</p></li><li><p>对于叶子节点，存【主键值】，还是存【数据地址】的取舍：</p><p>innodb可能需要回表查询，即在聚簇索引中进一步查找对应的数据行。这样可以避免在行移动或者插入新数据时出现的页分裂问题。</p><p>MyISAM中无论是主键索引还是二级索引，索引的叶子节点存放的都是指向数据行的指针，保证可以通过索引进而查找到对应的数据行，只需要对索引进行一遍查找。但这样会存在页分裂问题。</p></li></ul><h3><span id="联合索引"> 联合索引</span></h3><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731153830.png" alt="image-20210731153830652"></p><ul><li>一个索引只创造1课树</li><li>假设有2列，就把量列拼接起来，(A:B) 形成一个长的组合索引</li><li>先通过A查找，找到后再通过B查找</li><li><strong>总结：</strong><ul><li>如果不是按照最左开始查找，则无法使用索引，比如本例无法直接通过B查找</li><li>如果是范围查找，则后面的列，无法使用索引。</li></ul></li></ul><h2><span id="索引优化分析"> 索引优化分析</span></h2><h3><span id="存储空间-数据量与b树的层高关系"> 存储空间 （数据量与B+树的层高关系）</span></h3><ul><li>每个 page 都有一个 level，leaf page 的 level 是 0，root page 的 level 取决于整个 B+Tree 的高度。</li><li>因为页存储有 「空洞」 现象，所以不是非常固定的</li><li>一般来说 当数据为理论值的 2/3 时， 树就开始加一层了。</li></ul><p>已知：</p><ul><li><p>Int 类型主键，每页可以存 1203 个子节点指针。</p></li><li><p>bigint 类型主键，每页可以存 900 个子节点指针。</p></li><li><p>对于最下面一层的叶子节点：</p><ul><li>单行数据为 n byte ，每个page存 (16000  / n ) 条记录<br> 假如 1 行数据 300 byte，每个page 存 (16000  / n = 50）行数据。</li></ul></li></ul><p><strong>层高计算公式 ：</strong></p><p><em><em>总行数 = （每页指针数） ^（几层）</em> 每页行数</em>*</p><p>当主键为 int (4 byte) 类型时，极限值为</p><table><thead><tr><th>高度</th><th>多少个<br>索引页<br>（非叶子）</th><th>多少个<br>数据页<br>（叶子）</th><th>每页能存<br>几个记录</th><th>得到的行数</th><th>数据大小大小</th></tr></thead><tbody><tr><td>1（0+1）</td><td>0</td><td>1</td><td>50</td><td>50</td><td>16k</td></tr><tr><td>2（1+1）</td><td>1</td><td>1203</td><td>50</td><td>6万</td><td>18MB</td></tr><tr><td>3（2+1）</td><td>1204</td><td>1,447,209</td><td>50</td><td>7亿</td><td>22G</td></tr><tr><td>4（3+1）</td><td>1,447,209</td><td>17亿</td><td>50</td><td>850亿</td><td>25T</td></tr></tbody></table><p>当主键为 bigint (8 byte) 类型时，极限值为</p><table><thead><tr><th>高度</th><th>多少个<br>索引页<br>（非叶子）</th><th>多少个<br>数据页<br>（叶子）</th><th>每页能存<br>几个记录</th><th>得到的行数</th><th>数据大小大小</th></tr></thead><tbody><tr><td>1（0+1）</td><td>0</td><td>1</td><td>50</td><td>50</td><td>16k</td></tr><tr><td>2（1+1）</td><td>1</td><td>928</td><td>50</td><td>46400</td><td>18MB</td></tr><tr><td>3（2+1）</td><td>928</td><td>861,184</td><td>50</td><td>4000万</td><td>22G</td></tr><tr><td>4（3+1）</td><td>861,184</td><td>8亿</td><td>50</td><td>40亿</td><td>25T</td></tr></tbody></table><p>参考：<a href="https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/">https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/</a></p><h3><span id="主键选择"> 主键选择</span></h3><ul><li><p>自增主键</p><ul><li>顺序写入，效率高</li><li>每次查询都走2级索引</li></ul></li><li><p>随机主键</p><ul><li>节点分裂，数据移动，效率比较低</li><li>有可能查询走2级索引</li></ul></li><li><p>业务主键，比如订单号，用户id，商品id，等</p><ul><li>需要保证值是递增，一般情况下使用雪花算法即可</li><li>写入，查询磁盘利用率都高，可以使用一级索引</li></ul></li><li><p>联合主键</p><ul><li>影响索引列大小，不容易维护，不建议使用</li></ul></li></ul><h3><span id="联合索引使用"> 联合索引使用</span></h3><ul><li>按索引区分度排序，区分度越高的放在前面。<br>比如主键，时间，外键，手机号，身份证号等。<br>索引区分度低的有，类型，状态等</li><li>覆盖索引，我们要查询的数据，正好在索引中，那么就不用回表了<br>比如一个索引 （id,phone,addr），在执行 <code>select phone，addr from user where id = 8;</code> 时<br>可以不用回表，直接返回结果集，又称三星索引。</li><li>索引下推，mysql 5.6推出的性能改进，减少回表的次数，本该如此，不必细聊。</li></ul><h3><span id="索引避坑指南"> 索引避坑指南</span></h3><ul><li><p>设置合理的长度</p><ul><li><p>前10个字符建索引就行，如果前10个字符都体现不出区分度，那么这个数据本身也有点问题<br></p></li><li><p>解决方案，对于区分度不大的列，再建立一个 hash 值列，通过索引（hash(addr),addr）查找就快了</p></li></ul></li><li><p>索引失效的情况</p><ul><li><p>A = XX or B=xx 索引会失效么？<br>不会失效，<br> mysql 5.1 引入了Index merge 技术，已经可以同时对 1个表使用多个索引分别扫描，1次出结果</p></li><li><p>在联合索引中使用第二列，比如（phone，id_card_num）<br>使用<code>select * from user where id_card_num= 3701xxxxxx</code> 就不走索引</p></li><li><p>隐式类型转换，不走索引<br></p><figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">-- type moblie Long<br>-- 就不走索引<br>select * from user where moblie= &#x27;186123232222&#x27;<br></code></pre></div></td></tr></table></figure><p>类型转换的时候，不使用索引。<br>上线前跑一遍查询计划，看看有没有这事，这个事很容易发生，但不容易发现。</p></li><li><p>索引列包含计算，不走索引</p></li></ul>  <figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">select * from user where age-20 = 30;<br>-- 没有人会这么干，如果有人这么干，必须请大家吃饭<br></code></pre></div></td></tr></table></figure><ul><li><p>索引区分度低，有时候也不走索引<br>当索引的区分度过低，比如 sex ，if_old , sell_status 列，使用sql语句<br><code>select * from user where sex=1 and phone=18678922342</code><br>通过 sex 索引查询，要频繁的回表，这时候使用索引查询，还不如直接使用全表扫描更快。<br></p></li><li><p>查询条件，覆盖所有的索引值。也不会走本列索引<br>比如，有个 age 字段，使用sql语句，<code>select * from user where age &lt; 200</code><br>的时候，因为查询语句中的条件已经全部覆盖了整个数据集。<br>所以mysql也不会使用该索引。</p></li></ul></li></ul><h3><span id="column类型最佳实践"> column类型最佳实践</span></h3><ul><li>数据库字符集使用 utf8mb4</li><li>VARCHAR 按实际需要分配长度 ，255以上，需要更多的而空间描述长度，浪费空间</li><li>文本字段建议使用 VARCHAR</li><li>时间 字段使用 long，兼容性好，要不然迁移的时候，time类型有时区概念，容易出现bug</li><li>bool字段使用tinyint</li><li>枚举字段建议使用 tinyint</li><li>交易金额 建议使用 long，存成分已足够，￥1.01存成 101</li><li>禁止使用 “%” 前导的查询</li><li>禁止在索引列进行数学运算，会导致索引失效</li></ul><h3><span id="索引类型最佳实践"> 索引类型最佳实践</span></h3><ul><li>表必须有主键，建议使用业务主键，使用雪花算法保证自增。</li><li>单张表中索引数量不超过5个</li><li>单个索引字段数不超过5个</li><li>字符串索引使用前缀索引，前缀长度不超过10个字符</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 数据库 </category>
+          
+          <category> mysql </category>
+          
+      </categories>
+      
+      
+        <tags>
             
             <tag> innodb </tag>
             
@@ -31,9 +114,9 @@
     
     
     <entry>
-      <title>innodb概述【1】之存储引擎</title>
-      <link href="/2021/07/30/mysql/innodb%E6%A6%82%E8%BF%B0%E3%80%901%E3%80%91%E4%B9%8B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/"/>
-      <url>/2021/07/30/mysql/innodb%E6%A6%82%E8%BF%B0%E3%80%901%E3%80%91%E4%B9%8B%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/</url>
+      <title>innodb存储实现</title>
+      <link href="/2021/07/30/mysql/innodb%E5%AD%98%E5%82%A8%E5%AE%9E%E7%8E%B0/"/>
+      <url>/2021/07/30/mysql/innodb%E5%AD%98%E5%82%A8%E5%AE%9E%E7%8E%B0/</url>
       
         <content type="html"><![CDATA[<p>本章主要介绍 innodb 引擎的存储实现</p><span id="more"></span><hr><h2><span id="mysql-innodb-存储磁盘存储结构"> mysql innodb 存储磁盘存储结构</span></h2><p>innodb 的存储结构分为 5 级：<strong>表空间、段、簇、页、行。</strong></p><h3><span id="簇b树聚簇索引"> 簇（B+树，聚簇索引）</span></h3><p><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210731010412.png" alt="img"></p><ul><li>整个树有序，结构类似于跳表。</li><li>分为非叶子节点、叶子节点</li><li>非叶子节点，存主键+下一级指针。叶子节点存主键+数据</li><li>行是有序的，根据主键排序，所以支持2分查找</li><li>数据有冗余，有未分配空间，有已删除空间。所以数据主键要保递增，减少碎片化。</li></ul><h3><span id="页page"> 页(Page)</span></h3><img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210730224756.png" alt="image-20210730224756023" style="zoom:40%;"><ul><li>默认1页为16kb</li><li>页头，本页基本信息</li><li>虚记录，本页最小主键，本页最大主键。</li><li>【行】记录堆，行记录存储区，分为有效记录和已删除记录</li><li>未分配空间，页中未使用的空间</li><li>页尾，占8字节，主键存页面的校验信息</li></ul><h2><span id="mysql-innodb-内存管理"> mysql innodb 内存管理</span></h2><p>todo</p><h2><span id="mysql-innodb-事务实现原理"> mysql innodb 事务实现原理</span></h2><h3><span id="事务特性"> 事务特性：</span></h3><ul><li>A（atomicity 原子性）：全部成功，全部失败。不允许中间状态</li><li>I （isolation 隔离性）：并行事务不干扰</li><li>D（Durability 持久性）：提交事务后，数据不能丢</li><li>C（consistency 一致性）：凑数的</li></ul><h3><span id="并发问题"> 并发问题：</span></h3><ul><li>脏读（dirty read）： 读取到其他事务，没有提交的数据</li><li>不可重复读（non-repeatable read）：查询同一条数据两次，有可能结果不一样</li><li>幻读（phantom read）：select 出来的结果，可能是不存在的。<br>被其他事务插入后又删了，但中间存在期间，本事务恰好扫描到他了</li></ul><h3><span id="隔离级别"> 隔离级别：</span></h3><ul><li><p>Read Uncommitted（读取未提交内容）: 最低隔离级别，会读取到其他事务未提交的数据，</p><p>出现的问题：<strong>脏读</strong></p></li><li><p>Read Committed（读取提交内容）: 事务过程中可以读取到其他事务已提交的数据，</p><p>出现的问：<strong>不可重复读</strong></p></li><li><p>Repeatable Read（可重复读）: 每次读取相同结果集，不管其他事务是否提交，</p><p>出现的问题：<strong>幻读</strong></p></li><li><p>Serializable （串行化）: 事务排队，隔离级别最高，性能最差;</p><p>出现的问题：<strong>性能差</strong></p></li><li><p>总结：</p><ol><li>一般使用 RR （可重复读），但写事务的时候，尽量避免 select 范围修改。<br>如果有范围修改，则思考一下，有没有可能出现幻读，如果出现了是否有影响。</li><li>对于innodb，mvcc 并没有完全解决幻读问题。</li></ol></li></ul><h2><span id="innodb-mvcc"> innodb - mvcc</span></h2><h3><span id="两种查询模式"> 两种查询模式</span></h3><ul><li>当前读：永远查询某一行数据的最新的版本</li><li>读快照：假设当前事务为A，根据事务A的 trx id（事务id）总能查到，A事务开启的那一刻， <br>数据的历史版本快照。这个快照是永远不会发生改变的。</li></ul><h3><span id="可见性逻辑"> 可见性逻辑</span></h3><ul><li>trx id 指的是事务id，是一个自增的序列。id 大，证明事务发生的时间靠后</li><li>innodb 维护一个事务活跃列表，即 select * from information_schema.INNODB_TRX 查出来的数据。</li><li>可见性逻辑：<ol><li>事务开始的那一刻，查询所有当前事务。tmp_trx = [当前所有事务id]</li><li>tmp_trx_max = [时间轴最靠后的事务]，tmp_trx_min = [时间轴最靠前的事务]</li><li>搜索出来的数据，需要满足2个条件其中之一即可。<ul><li>事务id，比tmp_trx_min 的id要小（查出来的记录，在事务创建之前，就提交了）</li><li>不在事务活跃列表里面。（这个事务跑得快，已经先一步提交）</li></ul></li><li>如果不满足，则通过历史版本指针，找到该行数据的历史快照，正常使用即可</li></ol></li></ul><h2><span id="mysql-锁实现原理"> mysql 锁实现原理</span></h2><h3><span id="需要加锁的语句"> <strong>需要加锁的语句</strong></span></h3><p>select for update 、update、delete ，其他语句不用加锁。</p><h3><span id="分析锁的几个重要前提"> <strong>分析锁的几个重要前提</strong></span></h3><ul><li>索引：唯一索引 、 非唯一索引</li><li>事务隔离级别：RC 、 RR</li></ul><h3><span id="根据颗粒度划分"> <strong>根据颗粒度划分</strong></span></h3><ul><li><p>行级，锁1行</p><ul><li><p>RC下，唯一索引，非唯一索引，使用该级别锁。</p><p>RR下，唯一索引，使用该级别</p></li><li><p>作用在索引上</p></li><li><p>聚簇索引 &amp; 二级索引</p></li></ul></li><li><p>间隙，锁一部分</p><ul><li><p>RR下，唯一索引，才使用这个锁类型</p></li><li><p>索引是有序的，新的记录插入，只能插入到GAP区间内；<br>GAP锁，是计算出两条记录之间的GAP；<br>一旦锁住这个GAP。就封住了新纪录插入的可能性；<br>就能保证2次当前读返回的数据是一致的。</p></li><li><p>GAP锁的问题：查询where条件没有索引的时候，没法加GAP锁，很容易锁升级为表锁。</p></li></ul></li><li><p>表级，锁1个表</p><ul><li><strong>没有命中索引的时候，有概率锁表，概率还不小。</strong></li><li>所以，事务中，加锁的语句中的where条件一定要加索引。</li><li>一般来说，分两个步骤实现修改<ol><li>范围查询，返回主键id</li><li>根据主键id list 进行 update。</li></ol></li></ul></li></ul><h3><span id="根据类型划分"> <strong>根据类型划分</strong></span></h3><ul><li>共享锁<ul><li>读锁，可以被多个事务获取，阻止其他事务对记录的修改</li></ul></li><li>排他锁<ul><li>写锁，只能被1个事务获取，只允许获得锁的事务修改数据</li></ul></li></ul>]]></content>
       
@@ -42,12 +125,12 @@
           
           <category> 数据库 </category>
           
+          <category> mysql </category>
+          
       </categories>
       
       
         <tags>
-            
-            <tag> mysql </tag>
             
             <tag> innodb </tag>
             
@@ -182,11 +265,11 @@
       
         <tags>
             
-            <tag> mysql </tag>
-            
             <tag> 设计 </tag>
             
             <tag> 技术规范 </tag>
+            
+            <tag> mysql </tag>
             
         </tags>
       
