@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;light&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#F0CF55">
+  <meta name="description" content="mycat一些常见的使用技巧，和特殊sql语句">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>mycat【5】使用技巧 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":160,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":4},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 35vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>中委会</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210730103638.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="mycat【5】使用技巧">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-01 14:52" pubdate>
+        2021年8月1日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">mycat【5】使用技巧</h1>
+            
+            <div class="markdown-body">
+              <p>mycat一些常见的使用技巧，和特殊sql语句</p>
+<span id="more"></span>
+<hr>
+<h1><span id="mycat-使用技巧"> mycat 使用技巧</span></h1>
+<h2><span id="mycat-限制"> mycat 限制</span></h2>
+<p><strong>mycat 不适用的场景</strong></p>
+<ol>
+<li>需要大量使用，mycat禁用sql语句的场景</li>
+<li>经常需要跨分片关联查询的场景，ER分区表，全局表都不合适的时候。</li>
+<li>必须保证跨分片事物的强一致性的时候。</li>
+</ol>
+<p><strong>mycat 不支持的sql语句</strong></p>
+<ol>
+<li>
+<p><code>create table like XXX / create table select XXX</code></p>
+</li>
+<li>
+<p>跨库（跨分片）多表关联查询，子查询</p>
+</li>
+<li>
+<p><code>select for update / select lock in share mode</code> ，</p>
+<p>悲观锁只会锁住一个数据节点，其他数据节点不加锁；并且加锁的时候，也不会抛出异常。</p>
+<p>可能会产生数据不一致。</p>
+</li>
+<li>
+<p>多表 update 更新 、update 分片键。update 分片键后可能会导致后面的查询找不到数据。</p>
+</li>
+<li>
+<p>跨分片update 、delete [order by] limit 。 mycat会在多个节点执行 limit语句，会造成数据删多了。</p>
+</li>
+</ol>
+<p><strong>mycat 的弱分布式事务</strong></p>
+<p>使用的XA方式提交，但当所有事物ready之后，发送commit，此时有一个节点commit失败，则其他节点不会回滚。</p>
+<p>所以 mycat 的XA事物只能支持到 ready 操作之前。</p>
+<p>这种情况很难出现。</p>
+<h2><span id="mycat系统配置优化"> mycat系统配置优化</span></h2>
+<h3><span id="jvm参数优化"> jvm参数优化</span></h3>
+<p>配置 /bin/startup_nowrap.sh</p>
+<h3><span id="serverxml-系统参数优化"> server.xml 系统参数优化</span></h3>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>解释</th>
+<th>推荐值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>frontWriteQueueSize</td>
+<td>指定前端写队列的大小</td>
+<td>2048</td>
+</tr>
+<tr>
+<td>processors</td>
+<td>系统可用线程的数量</td>
+<td>根据cpu压力，一般是cpu数量*4</td>
+</tr>
+<tr>
+<td>processorBufferPool</td>
+<td>指定所使用的ByteBuffer池的总字节容量，<br>单位为字节</td>
+<td>2097152B</td>
+</tr>
+<tr>
+<td>processorBufferChunk</td>
+<td>指定所使用的单个ByteBuffer的容量，<br>单位为字节</td>
+<td>4096B</td>
+</tr>
+<tr>
+<td>processorExecutor</td>
+<td>每个processor的线程池大小</td>
+<td>16-64</td>
+</tr>
+</tbody>
+</table>
+<h4><span id="log4j2xml-日志级别优化"> log4j2.xml 日志级别优化</span></h4>
+<p>修改日志级别就好，其他不用动</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">asyncRoot</span> <span class="hljs-attr">level</span>=<span class="hljs-string">&quot;info&quot;</span> <span class="hljs-attr">includeLocation</span>=<span class="hljs-string">&quot;true&quot;</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+<h2><span id="mycat-web性能监控工具"> mycat-web性能监控工具</span></h2>
+<p>已经打好包，在dockerhub上。</p>
+<figure class="highlight sh"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs sh">docker run --name mycat-web -d -p 8082:8082 --restart=always coolflame/mycat-web  <br></code></pre></div></td></tr></table></figure>
+<p>地址为：</p>
+<h2><span id="mycat常用sql语句"> mycat常用sql语句</span></h2>
+<p>使用 <code>mysql -u[username] -p -P[管理端口，默认9066] -h[ip]</code>连接MyCat命令行管理端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">mysql&gt; show @@help;<br>+------------------------------------------+--------------------------------------------+<br>| STATEMENT                                | DESCRIPTION                                |<br>+------------------------------------------+--------------------------------------------+<br>| show @@time.current                      | Report current timestamp                   |<br>| show @@time.startup                      | Report startup timestamp                   |<br>| show @@version                           | Report Mycat Server version                |<br>| show @@server                            | Report server status                       |<br>| show @@threadpool                        | Report threadPool status                   |<br>| show @@database                          | Report databases                           |<br>| show @@datanode                          | Report dataNodes                           |<br>| show @@datanode where schema = ?         | Report dataNodes                           |<br>| show @@datasource                        | Report dataSources                         |<br>| show @@datasource where dataNode = ?     | Report dataSources                         |<br>| show @@datasource.synstatus              | Report datasource data synchronous         |<br>| show @@datasource.syndetail where name=? | Report datasource data synchronous detail  |<br>| show @@datasource.cluster                | Report datasource galary cluster variables |<br>| show @@processor                         | Report processor status                    |<br>| show @@command                           | Report commands status                     |<br>| show @@connection                        | Report connection status                   |<br>| show @@cache                             | Report system cache usage                  |<br>| show @@backend                           | Report backend connection status           |<br>| show @@session                           | Report front session details               |<br>| show @@connection.sql                    | Report connection sql                      |<br>| show @@sql.execute                       | Report execute status                      |<br>| show @@sql.detail where id = ?           | Report execute detail status               |<br>| show @@sql                               | Report SQL list                            |<br>| show @@sql.high                          | Report Hight Frequency SQL                 |<br>| show @@sql.slow                          | Report slow SQL                            |<br>| show @@sql.resultset                     | Report BIG RESULTSET SQL                   |<br>| show @@sql.sum                           | Report  User RW Stat                       |<br>| show @@sql.sum.user                      | Report  User RW Stat                       |<br>| show @@sql.sum.table                     | Report  Table RW Stat                      |<br>| show @@parser                            | Report parser status                       |<br>| show @@router                            | Report router status                       |<br>| show @@heartbeat                         | Report heartbeat status                    |<br>| show @@heartbeat.detail where name=?     | Report heartbeat current detail            |<br>| show @@slow where schema = ?             | Report schema slow sql                     |<br>| show @@slow where datanode = ?           | Report datanode slow sql                   |<br>| show @@sysparam                          | Report system param                        |<br>| show @@syslog limit=?                    | Report system mycat.log                    |<br>| show @@white                             | show mycat white host                      |<br>| show @@white.set=?,?                     | set mycat white host,[ip,user]             |<br>| show @@directmemory=1 or 2               | show mycat direct memory usage             |<br>| switch @@datasource name:index           | Switch dataSource                          |<br>| kill @@connection id1,id2,...            | Kill the specified connections             |<br>| stop @@heartbeat name:time               | Pause dataNode heartbeat                   |<br>| reload @@config                          | Reload basic config from file              |<br>| reload @@config_all                      | Reload all config from file                |<br>| reload @@route                           | Reload route config from file              |<br>| reload @@user                            | Reload user config from file               |<br>| reload @@sqlslow=                        | Set Slow SQL Time(ms)                      |<br>| reload @@user_stat                       | Reset show @@sql  @@sql.sum @@sql.slow     |<br>| rollback @@config                        | Rollback all config from memory            |<br>| rollback @@route                         | Rollback route config from memory          |<br>| rollback @@user                          | Rollback user config from memory           |<br>| reload @@sqlstat=open                    | Open real-time sql stat analyzer           |<br>| reload @@sqlstat=close                   | Close real-time sql stat analyzer          |<br>| offline                                  | Change MyCat status to OFF                 |<br>| online                                   | Change MyCat status to ON                  |<br>| clear @@slow where schema = ?            | Clear slow sql by schema                   |<br>| clear @@slow where datanode = ?          | Clear slow sql by datanode                 |<br>+------------------------------------------+--------------------------------------------+<br></code></pre></div></td></tr></table></figure>
+<h2><span id="使用mycat生成执行sql记录"> 使用MyCat生成执行SQL记录</span></h2>
+<p>在server.xml的system标签下配置拦截</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">system</span>&gt;</span><br>  <span class="hljs-comment">&lt;!-- 配置拦截器 --&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;sqlInterceptor&quot;</span>&gt;</span><br>    io.mycat.server.interceptor.impl.StatisticsSqlInterceptor<br>  <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>  <span class="hljs-comment">&lt;!-- 配置拦截SQL类型 --&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;sqlInterceptorType&quot;</span>&gt;</span><br>    select，update，insert，delete<br>  <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>  <span class="hljs-comment">&lt;!-- 配置SQL生成文件位置 --&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;sqlInterceptorFile&quot;</span>&gt;</span><br>    /opt/mycat/InterceptorFile/sql.txt<br>  <span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">system</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/mycat/">mycat</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">分库分表</a>
+                    
+                      <a class="hover-with-bg" href="/tags/mycat/">mycat</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/08/01/mycat/mycat%E3%80%906%E3%80%91%E4%B8%80%E6%AC%A1mycat%E5%9C%A8%E7%BA%BF%E5%88%86%E5%BA%93%E8%AE%B0%E5%BD%95/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mycat【6】一次mycat在线分库记录</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/01/mycat/mycat%E3%80%903%E3%80%91%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%A1%88/">
+                        <span class="hidden-mobile">mycat【3】高可用方案</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+    
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

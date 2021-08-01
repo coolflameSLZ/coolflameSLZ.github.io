@@ -357,7 +357,7 @@ img[lazyload] {
   --post-link-color: #0366d6;
   --link-hover-color: #30a9de;
   --link-hover-bg-color: #f8f9fa;
-  --navbar-bg-color: #2f4154;
+  --navbar-bg-color: #F0CF55;
   --navbar-text-color: #000000;
 }
 @media (prefers-color-scheme: dark) {
@@ -374,7 +374,7 @@ img[lazyload] {
     --post-link-color: #1589e9;
     --link-hover-color: #30a9de;
     --link-hover-bg-color: #364151;
-    --navbar-bg-color: #1f3144;
+    --navbar-bg-color: #F0CF55;
     --navbar-text-color: #000000;
   }
   :root:not([data-user-color-scheme]) img,
@@ -456,7 +456,7 @@ img[lazyload] {
   --post-link-color: #1589e9;
   --link-hover-color: #30a9de;
   --link-hover-bg-color: #364151;
-  --navbar-bg-color: #1f3144;
+  --navbar-bg-color: #F0CF55;
   --navbar-text-color: #000000;
 }
 [data-user-color-scheme='dark'] img,

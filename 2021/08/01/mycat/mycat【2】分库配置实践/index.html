@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;light&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#F0CF55">
+  <meta name="description" content="本章主要讲了mycat 分库的配置，与实践套路">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>mycat【2】分库配置实践 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":160,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":4},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 35vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>中委会</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210730103638.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="mycat【2】分库配置实践">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-01 13:56" pubdate>
+        2021年8月1日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      32
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">mycat【2】分库配置实践</h1>
+            
+            <div class="markdown-body">
+              <p>本章主要讲了mycat 分库的配置，与实践套路</p>
+<span id="more"></span>
+<hr>
+<h2><span id="mycat垂直切分"> mycat垂直切分</span></h2>
+<h3><span id="垂直分库步骤"> 垂直分库步骤</span></h3>
+<ol>
+<li>
+<h4><span id="分析数据库依赖关系"> 分析数据库依赖关系</span></h4>
+<p>比如我们需要将订单表，用户表进行分库操作，master_db -&gt; order_db , master_db -&gt; user_db</p>
+</li>
+<li>
+<h4><span id="配置主从复制"> 配置主从复制</span></h4>
+<ol>
+<li>备份原数据库并记录相关事务点（在主库中操作）</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 数据导出，--master-data=2 --single-transaction 不能忘</span><br><span class="hljs-meta">$</span><span class="bash"> mysqldump --master-data=2 --single-transaction --routines --trigger --events -uroot -pxxxx master_db.sql &gt; sub_master_db.sql</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 数据导入</span><br><span class="hljs-meta">$</span><span class="bash"> mysql -uroot -pxxxx order_db &lt; sub_master_db.sql</span><br><br></code></pre></div></td></tr></table></figure>
+<ol start="2">
+<li>新建复制用户（在主库中操作，）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql">create user &#x27;trans_user&#x27;@&#x27;192.168.1.%&#x27; identified by &#x27;[passward]&#x27; ;<br><br>grant replication slave on *.* to &#x27;trans_user&#x27;@&#x27;192.168.1.%&#x27;;<br></code></pre></div></td></tr></table></figure>
+<ol start="3">
+<li>在从库实例上恢复备份数据，并配置binlog 链路。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs mysql"># 在从库中的配置主库地址<br>change master to master_host =&#x27;192.168.1.x&#x27; , <br>master_user = &#x27;trans_user&#x27; , <br>master_password = &#x27;xxx&#x27; , <br>master_log_file = &#x27;[开始同步的日志文件名，这个值在备份文件中，MASTER_LOG_FILE = &#x27;xxx&#x27;]&#x27; ,<br>master_log_pos = &#x27;[开始同步的事务点，这个值在备份文件中，MASTER_LOG_POS = &#x27;xxx&#x27;]&#x27; ;<br><br># 改写从库同步数据的数据库名称，主库中 master_db 在从库中则需要改写为 order_db <br># 使用主从复制中的过滤函数 RELICATE_REWRITE<br>filter replicate_rewrite_db = ((master_db,order_db))<br><br># 查询从库状态<br>show slave status<br># 启动复制链路<br>start slave<br><br># Slave_IO_Running, Slave_SQL_Running 状态为YES，则代表成功<br></code></pre></div></td></tr></table></figure>
+</li>
+<li>
+<h4><span id="配置垂直分库逻辑"> 配置垂直分库逻辑</span></h4>
+<p>通过中间件访问DB（垂直切分不需要配置 rule.xml）</p>
+<ol>
+<li>假如主库需要分2个库，一个是order库，一个是user库。</li>
+<li>配置 schema.xml ，配置顺序为：dataHost(2个) -&gt; dataNode(2个) -&gt; schema(1个)</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=&quot;1.0&quot;?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">mycat</span>:schema <span class="hljs-meta-keyword">SYSTEM</span> <span class="hljs-meta-string">&quot;schema.dtd&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">mycat:schema</span> <span class="hljs-attr">xmlns:mycat</span>=<span class="hljs-string">&quot;http://io.mycat/&quot;</span>&gt;</span><br>       <br>    <span class="hljs-comment">&lt;!-- ③ 配置逻辑数据库中， table 与dataNode间关系--&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">schema</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;mall_db&quot;</span> <span class="hljs-attr">checkSQLschema</span>=<span class="hljs-string">&quot;true&quot;</span> <span class="hljs-attr">sqlMaxLimit</span>=<span class="hljs-string">&quot;100&quot;</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;order_detail&quot;</span> <span class="hljs-attr">primarykey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">dataNode</span>=<span class="hljs-string">&quot;orderNode&quot;</span> &gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;order_account&quot;</span> <span class="hljs-attr">primarykey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">dataNode</span>=<span class="hljs-string">&quot;orderNode&quot;</span> &gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;order_img&quot;</span> <span class="hljs-attr">primarykey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">dataNode</span>=<span class="hljs-string">&quot;orderNode&quot;</span> &gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;user_address&quot;</span> <span class="hljs-attr">primarykey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">dataNode</span>=<span class="hljs-string">&quot;userNode&quot;</span> &gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;user_info&quot;</span> <span class="hljs-attr">primarykey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">dataNode</span>=<span class="hljs-string">&quot;userNode&quot;</span> &gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>      <span class="hljs-comment">&lt;!-- 全局表，该表在所有的从库中都会有--&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;address&quot;</span> <span class="hljs-attr">primarykey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">dataNode</span>=<span class="hljs-string">&quot;userNode,orderNode&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;global&quot;</span> &gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>  	<span class="hljs-tag">&lt;/<span class="hljs-name">schema</span>&gt;</span><br>   <br>    <span class="hljs-comment">&lt;!-- ② dataNode 数据库实例，与mysql实例映射--&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dataNode</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderNode&quot;</span> <span class="hljs-attr">dataHost</span>=<span class="hljs-string">&quot;orderHost&quot;</span> <span class="hljs-attr">database</span>=<span class="hljs-string">&quot;order_db&quot;</span> /&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dataNode</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;userNode&quot;</span> <span class="hljs-attr">dataHost</span>=<span class="hljs-string">&quot;userHost&quot;</span> <span class="hljs-attr">database</span>=<span class="hljs-string">&quot;user_db&quot;</span> /&gt;</span><br>    <br>    <span class="hljs-comment">&lt;!-- ① dataHost mysql实例--&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">dataHost</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderHost&quot;</span> <span class="hljs-attr">maxCon</span>=<span class="hljs-string">&quot;1000&quot;</span> <span class="hljs-attr">minCon</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">balance</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">writeType</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">dbType</span>=<span class="hljs-string">&quot;mysql&quot;</span> <span class="hljs-attr">dbDriver</span>=<span class="hljs-string">&quot;native&quot;</span> <span class="hljs-attr">switchType</span>=<span class="hljs-string">&quot;1&quot;</span>&gt;</span> <br>      <span class="hljs-tag">&lt;<span class="hljs-name">heartbeat</span>&gt;</span>select user()<span class="hljs-tag">&lt;/<span class="hljs-name">heartbeat</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">writeHost</span> <span class="hljs-attr">host</span>=<span class="hljs-string">&quot;localhost&quot;</span> <span class="hljs-attr">url</span>=<span class="hljs-string">&quot;localhost:3307&quot;</span> <span class="hljs-attr">user</span>=<span class="hljs-string">&quot;order_db_user&quot;</span> <span class="hljs-attr">password</span>=<span class="hljs-string">&quot;123456&quot;</span> /&gt;</span> <br>		<span class="hljs-tag">&lt;/<span class="hljs-name">dataHost</span>&gt;</span><br>  <br>  	<span class="hljs-tag">&lt;<span class="hljs-name">dataHost</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;userHost&quot;</span> <span class="hljs-attr">maxCon</span>=<span class="hljs-string">&quot;1000&quot;</span> <span class="hljs-attr">minCon</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">balance</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">writeType</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">dbType</span>=<span class="hljs-string">&quot;mysql&quot;</span> <span class="hljs-attr">dbDriver</span>=<span class="hljs-string">&quot;native&quot;</span> <span class="hljs-attr">switchType</span>=<span class="hljs-string">&quot;1&quot;</span>&gt;</span> <br>      <span class="hljs-tag">&lt;<span class="hljs-name">heartbeat</span>&gt;</span>select user()<span class="hljs-tag">&lt;/<span class="hljs-name">heartbeat</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">writeHost</span> <span class="hljs-attr">host</span>=<span class="hljs-string">&quot;localhost&quot;</span> <span class="hljs-attr">url</span>=<span class="hljs-string">&quot;localhost:3307&quot;</span> <span class="hljs-attr">user</span>=<span class="hljs-string">&quot;user_db_user&quot;</span> <span class="hljs-attr">password</span>=<span class="hljs-string">&quot;123456&quot;</span> /&gt;</span> <br>		<span class="hljs-tag">&lt;/<span class="hljs-name">dataHost</span>&gt;</span><br>    <br><span class="hljs-tag">&lt;/<span class="hljs-name">mycat:schema</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+<ol start="2">
+<li>配置 server.xml 配置系统遍历及用户权限</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">user</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;mall_user&quot;</span>&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;password&quot;</span>&gt;</span>123456<span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;schemas&quot;</span>&gt;</span>mall_db<span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+</li>
+<li>
+<h4><span id="开始作案"> 开始作案</span></h4>
+<p>万事俱备后，夜黑风高之夜进行切换操作，需要预留足够的作案时间，回滚时间</p>
+</li>
+<li>
+<h4><span id="收尾"> 收尾</span></h4>
+<p>删除原库中，的已迁移数据。从库中，多余的数据。</p>
+<ol>
+<li>停止主从同步，stop slave;  reset slave all;  show status\g;</li>
+<li>备份 ，drop表</li>
+</ol>
+</li>
+</ol>
+<h2><span id="水平切分"> 水平切分</span></h2>
+<h3><span id="原则"> 原则：</span></h3>
+<ol>
+<li>能不切分就不切分。对于日志，历史记录这种大表，可以使用历史数据归档的方式进行数据转移，保证热点数据在数据库中即可。无法归档的数据时才考虑进行水平切分。</li>
+<li>选择合适的分片字段及分配规则，一定要提前想好，因为查询的时候也尽量需要带上分片键，这个后期修改困难</li>
+<li>尽量避免跨分片join</li>
+</ol>
+<h3><span id="步骤"> 步骤</span></h3>
+<ol>
+<li>
+<h4><span id="确定分片键"> 确定分片键</span></h4>
+<p>确定 分片表，分片键，分片算法，全局唯一id生成算法；记住要讨论一下有没有坑。</p>
+<p><strong>分片表</strong>：将需要分片的表，以及频繁需要和分片表关联查询的表一起分片。（不经常使用join语句的话，可以忽略）</p>
+<p><strong>分片键</strong>：主键id，业务唯一id（比如订单id），<strong>外键或namespace</strong>（比如订单关联的user_id,或者订单的日期, 订单的查询往往是以用户为单位查询，或者以时间为单位查询的，这一点需要考虑业务上的常用查询方式）</p>
+<p><strong>分片算法</strong>：简单取模算法，哈希取模算法。</p>
+</li>
+<li>
+<h4><span id="配置-mycat"> 配置 mycat</span></h4>
+<p>schema.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=&quot;1.0&quot;?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">mycat</span>:schema <span class="hljs-meta-keyword">SYSTEM</span> <span class="hljs-meta-string">&quot;schema.dtd&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">mycat:schema</span> <span class="hljs-attr">xmlns:mycat</span>=<span class="hljs-string">&quot;http://io.mycat/&quot;</span>&gt;</span><br>       <br>    <span class="hljs-comment">&lt;!-- ③ 配置逻辑数据库中， table 与dataNode间关系--&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">schema</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;order&quot;</span> <span class="hljs-attr">checkSQLschema</span>=<span class="hljs-string">&quot;true&quot;</span> <span class="hljs-attr">sqlMaxLimit</span>=<span class="hljs-string">&quot;100&quot;</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;order_master&quot;</span> <span class="hljs-attr">primarykey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">dataNode</span>=<span class="hljs-string">&quot;orderNode0101,orderNode0102,orderNode0203,orderNode0204&quot;</span> <span class="hljs-attr">rule</span>=<span class="hljs-string">&quot;order_master&quot;</span> &gt;</span><br>        <span class="hljs-comment">&lt;!-- ER分片表 --&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">childTable</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;order_detail&quot;</span> <span class="hljs-attr">primaryKey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">joinKey</span>=<span class="hljs-string">&quot;id&quot;</span> <span class="hljs-attr">parentKey</span>=<span class="hljs-string">&quot;id&quot;</span> /&gt;</span><br>        <br>      <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>  	<span class="hljs-tag">&lt;/<span class="hljs-name">schema</span>&gt;</span><br>   <br>    <span class="hljs-comment">&lt;!-- ② dataNode 数据库实例，与mysql实例映射--&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dataNode</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderNode0101&quot;</span> <span class="hljs-attr">dataHost</span>=<span class="hljs-string">&quot;orderHost01&quot;</span> <span class="hljs-attr">database</span>=<span class="hljs-string">&quot;order_db_01&quot;</span> /&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dataNode</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderNode0102&quot;</span> <span class="hljs-attr">dataHost</span>=<span class="hljs-string">&quot;orderHost01&quot;</span> <span class="hljs-attr">database</span>=<span class="hljs-string">&quot;order_db_02&quot;</span> /&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dataNode</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderNode0203&quot;</span> <span class="hljs-attr">dataHost</span>=<span class="hljs-string">&quot;orderHost02&quot;</span> <span class="hljs-attr">database</span>=<span class="hljs-string">&quot;order_db_03&quot;</span> /&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dataNode</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderNode0204&quot;</span> <span class="hljs-attr">dataHost</span>=<span class="hljs-string">&quot;orderHost02&quot;</span> <span class="hljs-attr">database</span>=<span class="hljs-string">&quot;order_db_04&quot;</span> /&gt;</span><br>    <br>    <span class="hljs-comment">&lt;!-- ① dataHost mysql实例--&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">dataHost</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderHost01&quot;</span> <span class="hljs-attr">maxCon</span>=<span class="hljs-string">&quot;1000&quot;</span> <span class="hljs-attr">minCon</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">balance</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">writeType</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">dbType</span>=<span class="hljs-string">&quot;mysql&quot;</span> <span class="hljs-attr">dbDriver</span>=<span class="hljs-string">&quot;native&quot;</span> <span class="hljs-attr">switchType</span>=<span class="hljs-string">&quot;1&quot;</span>&gt;</span> <br>      <span class="hljs-tag">&lt;<span class="hljs-name">heartbeat</span>&gt;</span>select user()<span class="hljs-tag">&lt;/<span class="hljs-name">heartbeat</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">writeHost</span> <span class="hljs-attr">host</span>=<span class="hljs-string">&quot;localhost&quot;</span> <span class="hljs-attr">url</span>=<span class="hljs-string">&quot;localhost:3307&quot;</span> <span class="hljs-attr">user</span>=<span class="hljs-string">&quot;order_db_user&quot;</span> <span class="hljs-attr">password</span>=<span class="hljs-string">&quot;123456&quot;</span> /&gt;</span> <br>		<span class="hljs-tag">&lt;/<span class="hljs-name">dataHost</span>&gt;</span><br>  <br>  	<span class="hljs-tag">&lt;<span class="hljs-name">dataHost</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;orderHost02&quot;</span> <span class="hljs-attr">maxCon</span>=<span class="hljs-string">&quot;1000&quot;</span> <span class="hljs-attr">minCon</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">balance</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">writeType</span>=<span class="hljs-string">&quot;0&quot;</span> <span class="hljs-attr">dbType</span>=<span class="hljs-string">&quot;mysql&quot;</span> <span class="hljs-attr">dbDriver</span>=<span class="hljs-string">&quot;native&quot;</span> <span class="hljs-attr">switchType</span>=<span class="hljs-string">&quot;1&quot;</span>&gt;</span> <br>      <span class="hljs-tag">&lt;<span class="hljs-name">heartbeat</span>&gt;</span>select user()<span class="hljs-tag">&lt;/<span class="hljs-name">heartbeat</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">writeHost</span> <span class="hljs-attr">host</span>=<span class="hljs-string">&quot;localhost&quot;</span> <span class="hljs-attr">url</span>=<span class="hljs-string">&quot;localhost:3307&quot;</span> <span class="hljs-attr">user</span>=<span class="hljs-string">&quot;order_db_user&quot;</span> <span class="hljs-attr">password</span>=<span class="hljs-string">&quot;123456&quot;</span> /&gt;</span> <br>		<span class="hljs-tag">&lt;/<span class="hljs-name">dataHost</span>&gt;</span><br>    <br><span class="hljs-tag">&lt;/<span class="hljs-name">mycat:schema</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+<p>rule.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">mycat:rule</span> <span class="hljs-attr">xmlns:mycat</span>=<span class="hljs-string">&quot;http://io.mycat/&quot;</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">tableRule</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;order_mater&quot;</span>&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">rule</span>&gt;</span><br>			<span class="hljs-tag">&lt;<span class="hljs-name">columns</span>&gt;</span>user_id<span class="hljs-tag">&lt;/<span class="hljs-name">columns</span>&gt;</span><br>			<span class="hljs-tag">&lt;<span class="hljs-name">algorithm</span>&gt;</span>mod-long<span class="hljs-tag">&lt;/<span class="hljs-name">algorithm</span>&gt;</span><br>		<span class="hljs-tag">&lt;/<span class="hljs-name">rule</span>&gt;</span><br>	<span class="hljs-tag">&lt;/<span class="hljs-name">tableRule</span>&gt;</span><br><br>	<span class="hljs-tag">&lt;<span class="hljs-name">function</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;mod-long&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;io.mycat.route.function.PartitionByMod&quot;</span>&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;count&quot;</span>&gt;</span>4<span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>	<span class="hljs-tag">&lt;/<span class="hljs-name">function</span>&gt;</span><br>  <br><span class="hljs-tag">&lt;/<span class="hljs-name">mycat:rule</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+<p>server.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">user</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;mall_order&quot;</span>&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;password&quot;</span>&gt;</span>123456<span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br>		<span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;schemas&quot;</span>&gt;</span>order<span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">user</span>&gt;</span><br></code></pre></div></td></tr></table></figure>
+</li>
+<li>
+<p>数据迁移，使用脚本，按照规定的分片算法进行数据迁移即可。</p>
+</li>
+</ol>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/mycat/">mycat</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">分库分表</a>
+                    
+                      <a class="hover-with-bg" href="/tags/mycat/">mycat</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/08/01/mycat/mycat%E3%80%903%E3%80%91%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%A1%88/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mycat【3】高可用方案</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/01/mycat/mycat%E3%80%901%E3%80%91%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E6%A6%82%E8%BF%B0/">
+                        <span class="hidden-mobile">mycat【1】配置文件概述</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+    
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
