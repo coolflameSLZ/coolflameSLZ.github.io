@@ -14,11 +14,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="去吧，把服务照明">
+  <meta name="description" content="">
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-  <title>监控规范 - Hexo</title>
+  <title>kafka【2】版本&amp;部署规划 - Hexo</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
 
@@ -163,7 +163,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="监控规范">
+            <span class="h2" id="subtitle" title="kafka【2】版本&部署规划">
               
             </span>
 
@@ -173,8 +173,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-07-30 17:27" pubdate>
-        2021年7月30日 下午
+      <time datetime="2021-08-02 12:26" pubdate>
+        2021年8月2日 中午
       </time>
     </span>
   
@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      385 字
+      777 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      5
+      11
        分钟
     </span>
   
@@ -225,292 +225,115 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">监控规范</h1>
+            <h1 style="display: none">kafka【2】版本&amp;部署规划</h1>
             
             <div class="markdown-body">
-              <p>去吧，把服务照明</p>
-<span id="more"></span>
+              <span id="more"></span>
 <hr>
-<h2><span id="常见监控点"> 常见监控点</span></h2>
-<h3><span id="系统层"> 系统层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>虚拟机监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>容器监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="网络层"> 网络层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>监控专线带宽</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>交换机基本情况</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>网络延迟</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="中间件"> 中间件</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>注册中心</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>mysql</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>redis</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>es</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="应用程序本身"> 应用程序本身</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>jvm</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>GC</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>内存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>线程</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>队列</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>缓存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>可用性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>业务正确性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2><span id="日志规范"> 日志规范</span></h2>
-<h4><span id="日志规范"> 日志规范</span></h4>
-<ol>
-<li>对外服务接口，所有if分支需要打印日志</li>
-<li>使用日志异步配置</li>
-<li>禁止打印全部实体，打印实体id即可，实体关键属性即可</li>
-<li>打印traceId</li>
-</ol>
-<h4><span id="日志分级"> 日志分级</span></h4>
+<h2><span id="版本选择"> 版本选择</span></h2>
+<p>Kafka 目前总共演进了 7 个大版本，分别是 0.7、0.8、0.9、0.10、0.11、1.0 和 2.0</p>
+<h3><span id="最低版本使用要求"> 最低版本使用要求：</span></h3>
 <ul>
-<li>DEBUG 用于开发调试；敏感信息一律使用debug。</li>
-<li>INFO 用于重要流程信息；if 各种分支</li>
-<li>WARN 用于需要关注但无需报警的问题；一般是为了方便排查的日志。</li>
-<li>ERROR 需要报警的异常；一般是系统异常、需要人工介入的业务异常</li>
+<li>
+<p>（总体上不建议使用）</p>
+</li>
+<li>
+<p>至少要选择 0.8.2.2 ，</p>
+</li>
+<li>
+<p>使用 老版本 Producer API ，</p>
+</li>
+<li>
+<p>老版本 Consumer API。</p>
+</li>
 </ul>
-<h4><span id="日志分割"> 日志分割</span></h4>
-<p>近期（7天内）日志，根据日期&amp;大小分割，保存日志原文。<br>如果有日志平台，则不需要保存长期日志<br>没有日志平台的话，需要保存30天日志，根据日期分割，使用压缩格式，文件中要体现时间。</p>
-<h4><span id="日志中的信息"> 日志中的信息</span></h4>
+<h3><span id="09版本注意事项"> 0.9版本注意事项：</span></h3>
 <ul>
-<li></li>
+<li>
+<p>（总体上不建议使用）</p>
+</li>
+<li>
+<p>必须使用 新版本Producer API ，老版本Consumer API</p>
+</li>
+<li>
+<p>不要使用0.9版本中的 新版本Consumer API ，bug超多</p>
+</li>
+</ul>
+<h3><span id="010版本注意事项"> 0.10版本注意事项：</span></h3>
+<ul>
+<li>
+<p>如果使用的话，就用最优小版本 <strong>0.10.2.2</strong></p>
+</li>
+<li>
+<p>0.10.2.2 版本起，使用 新版本 Producer API ，新版本 Consumer API</p>
+</li>
+<li>
+<p>0.10.2.2 修复了一个可能导致 Producer 性能降低的 Bug， 基于性能的缘故你也应该升级到 0.10.2.2</p>
+</li>
+</ul>
+<h3><span id="011版本注意事项"> 0.11版本注意事项：</span></h3>
+<ul>
+<li>
+<p>如果使用的话，就用最优小版本 <strong>0.11.0.3</strong></p>
+</li>
+<li>
+<p>0.11.0.3版本，引入了两个重量级的功能</p>
+<ul>
+<li>幂等性 Producer API 以及 事务 Transaction API</li>
+<li>对 Kafka 消息格式做了重构。</li>
+</ul>
+</li>
+</ul>
+<h3><span id="10-20版本"> 1.0、2.0版本</span></h3>
+<ul>
+<li>主要增加的功能是流处理计算功能，</li>
+<li>消息引擎方面，没什么变更。</li>
+<li>如果不使用流处理功能，则不用升级。</li>
+</ul>
+<h3><span id="版本选择总结"> 版本选择总结：</span></h3>
+<ul>
+<li>
+<p>无需流处理功能，则选择尽量将版本选为 0.11.0.3，这个版本的消息引擎功能已经非常完善了</p>
+</li>
+<li>
+<p>不论你用的是哪个版本，都请尽量保持服务器端版本和客户端版本一致， 否则可能损失很多 Kafka 为你提供的性能优化收益</p>
+</li>
+</ul>
+<h2><span id="部署方式"> 部署方式</span></h2>
+<h3><span id="操作系统选择linux"> 操作系统选择linux</span></h3>
+<ul>
+<li>实际上 Kafka 客户端底层使用了 Java 的 selector，selector 在 Linux 上的实现机制是 epoll，而在 Windows 平台上的实现机制是select。因此在这一点上将 Kafka 部署在 Linux 上是有优势的，因为能够获得更高效的 I/O 性能</li>
+<li>在 Linux 部署 Kafka 能够享受到零拷贝技术所带来的 快速数据传输特性</li>
+</ul>
+<h3><span id="硬盘是否需要raid"> 硬盘是否需要RAID</span></h3>
+<ul>
+<li>kafka自带高可用策略，无需RAID，使用普通磁盘组成存储空间即可。 使用机械磁盘完全能够胜任 Kafka 线上环境。</li>
+</ul>
+<h3><span id="硬盘容量规划"> 硬盘容量规划</span></h3>
+<ul>
+<li>规划磁盘容量时你需要考虑下面这几个元素
+<ul>
+<li>新增消息数</li>
+<li>消息留存时间</li>
+<li>平均消息大小</li>
+<li>备份数</li>
+<li>是否启用压缩</li>
+</ul>
+</li>
+<li>其实，硬盘不是瓶颈，给足就好。带宽才是。</li>
+</ul>
+<h3><span id="带宽计算公式"> 带宽计算公式</span></h3>
+<ul>
+<li>
+<p>带宽资源不足导致 Kafka 出现性能问题的比例至少占 60% 以上</p>
+</li>
+<li>
+<p>即单台服务器使用带宽 700Mb / 3 ≈ 240Mbps。 这里的其实是相当保守的，你可以结合你自己机器的使用情况酌情减少此值。</p>
+</li>
+<li>
+<p>举例：<br></p>
+<p>1小时处理1TB为目标。 根据这个目标，我们每秒需要处理 2336Mb 的数据，除以 240，约等于 10 台服务器。 如果消息还需要额外复制两份，那么总的服务器台数还要乘以 3，即 30 台</p>
+</li>
 </ul>
 
             </div>
@@ -521,7 +344,9 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                      <a class="hover-with-bg" href="/categories/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/">消息系统</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka/">kafka</a>
                     
                   </div>
                 
@@ -529,9 +354,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/">技术规范</a>
-                    
-                      <a class="hover-with-bg" href="/tags/devOps/">devOps</a>
+                      <a class="hover-with-bg" href="/tags/kafka/">kafka</a>
                     
                   </div>
                 
@@ -543,6 +366,29 @@
                   
                 </p>
               
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/08/02/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka%E3%80%903%E3%80%91server%E7%AB%AF%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">kafka【3】server端配置实践</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/02/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka%E3%80%901%E3%80%91%E6%A6%82%E8%BF%B0/">
+                        <span class="hidden-mobile">kafka【1】概述</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
               
             </div>
 

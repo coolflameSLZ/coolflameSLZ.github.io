@@ -1,0 +1,658 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;light&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#F0CF55">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>kafka【4】client端最佳实践 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":160,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":4},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 35vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>中委会</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210730103638.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="kafka【4】client端最佳实践">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-02 13:19" pubdate>
+        2021年8月2日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      33
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">kafka【4】client端最佳实践</h1>
+            
+            <div class="markdown-body">
+              <span id="more"></span>
+<hr>
+<h1><span id="kafka4client端最佳实践"> kafka【4】client端最佳实践</span></h1>
+<h2><span id="生产者分区策略"> 生产者分区策略</span></h2>
+<h3><span id="分区策略的意义"> 分区策略的意义</span></h3>
+<ul>
+<li>
+<p>分区实际上是调优Kafka并行度的最小单元</p>
+</li>
+<li>
+<p>所谓分区策略是决定生产者将消息发送到哪个分区的算法。</p>
+</li>
+<li>
+<p>如果一个topic分区越多，理论上整个集群所能达到的吞吐量就越大。</p>
+</li>
+</ul>
+<h3><span id="自带的分区策略"> 自带的分区策略</span></h3>
+<h4><span id="轮询策略"> 轮询策略</span></h4>
+<ul>
+<li>能保证消息最大限度地被平均分配到所有分区上，故默认情况下它是最合理的分区策略</li>
+</ul>
+<h4><span id="随机策略"> 随机策略</span></h4>
+<ul>
+<li>如果追求数据的均匀分布，还是使用轮询策略比较好，随机策略暂时没想到场景</li>
+</ul>
+<h4><span id="按照key分区-key-ordering-策略"> 按照key分区 Key-ordering 策略</span></h4>
+<ul>
+<li>一旦消息被定义了 Key，则使用 key-ordering 策略，同一个 Key 的所有消息都进入到相同的partition</li>
+<li>kafka只能保证同partition下的消息处理都是有顺序的，partition间无法做到有序。</li>
+<li>如果所有数据都用这一个key，会导致分区数据不平衡，降低吞吐量。所以建议使用区分度较大的值作为key。比如 uid，pid，不要使用 status、if_xxx等</li>
+<li>没有找到一个区分度大的key，又要保持顺序，则不要使用kafka，rocketMq不错。</li>
+</ul>
+<h3><span id="自定义分区策略"> 自定义分区策略</span></h3>
+<ul>
+<li>编写生产者程序时，可以自定义分区策略接口</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">// org.apache.kafka.clients.producer.Partitioner </span><br><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">partition</span><span class="hljs-params">(String topic, Object key, <span class="hljs-keyword">byte</span>[] keyBytes, Object value, <span class="hljs-keyword">byte</span>[] valueBytes, Cluster cluster)</span></span><br><span class="hljs-function"></span><br><span class="hljs-function">List&lt;PartitionInfo&gt; partitions </span>= cluster.partitionsForTopic(topic); <br><span class="hljs-keyword">return</span> Math.abs(key.hashCode()) % partitions.size();<br><br></code></pre></div></td></tr></table></figure>
+<h2><span id="producer-端配置实践"> producer 端配置实践</span></h2>
+<h3><span id="生产者基本配置"> 生产者基本配置</span></h3>
+<h4><span id="消息版本"> 消息版本</span></h4>
+<p>Producer 和 Broker 的消息版本要统一（如果不统一，Broker要进行消息解析）</p>
+<h4><span id="压缩"> 压缩</span></h4>
+<ul>
+<li>最好开启LZ4压缩。</li>
+<li>压缩配置，Producer 端压缩、Broker 端保持、Consumer 端解压缩。</li>
+</ul>
+<h4><span id="提交策略"> 提交策略</span></h4>
+<ul>
+<li>设置 acks = master。代表master Broker 收到消息，消息就算“已提交”。</li>
+<li>设置 acks = all。 代表所有副本Broker 都接收到消息，该消息才算是“已提交”。</li>
+</ul>
+<h4><span id="重试次数"> 重试次数</span></h4>
+<p>设置 retries 为一个较大的值 比如3</p>
+<h4><span id="提交的方法"> 提交的方法</span></h4>
+<p>使用 producer.send(msg, callback)，必须实现回调函数。</p>
+<h4><span id="幂等消息"> 幂等消息</span></h4>
+<ul>
+<li>幂等消息是 0.11.0.0 版本以后，引入的</li>
+<li>开启方法：设置enable.idempotence=ture</li>
+<li>注意事项：
+<ul>
+<li>只能保证单分区上的幂等性，且当 Producer 进程重启以后之后，这种幂等性保证就丧失了</li>
+<li>需要 <strong>多分区，多会话</strong>上的消息无重复，需要使用事务型Producer</li>
+</ul>
+</li>
+</ul>
+<h4><span id="事务型-producer"> 事务型 Producer</span></h4>
+<ul>
+<li>
+<p>保证一批消息原子性地写入到多个分区中，这批消息要么全部写入成功，要么全部失败。</p>
+</li>
+<li>
+<p><strong>开启方法</strong>：</p>
+<ul>
+<li>
+<p>配置 enable.idempotence=ture</p>
+</li>
+<li>
+<p>使用下面方法生产消息</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">//发送代码</span><br>producer.initTransactions();<br><span class="hljs-keyword">try</span> &#123;<br>            producer.beginTransaction();<br>            producer.send(record1);<br>            producer.send(record2);<br>            producer.commitTransaction();<br>&#125; <span class="hljs-keyword">catch</span> (KafkaException e) &#123;<br>            producer.abortTransaction();<br>&#125;<br></code></pre></div></td></tr></table></figure>
+</li>
+<li>
+<p><strong>需要注意</strong>，事务消息，在consumer端也要进行配置成 read_committed，表明 Consumer 只会消费 事务型 Producer 成功提交事务写入的消息。<br>Consumer 默认 read_uncommitted ， 表示消费者会消费所有消息，如果用了事务型 Producer，对应的 Consumer 就不要使用这个值，这是个坑。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2><span id="消费者注意事项"> 消费者注意事项</span></h2>
+<h3><span id="基本原则"> 基本原则</span></h3>
+<ul>
+<li>
+<p>先实际消费，再提交位移。</p>
+</li>
+<li>
+<p>默认先关闭自动提交 enable.auto.commit =  false ， 看场景选择是否打开。</p>
+</li>
+<li>
+<p>必须配置消费者连接超时间， <a target="_blank" rel="noopener" href="http://connection.max.idle.ms">connection.max.idle.ms</a></p>
+</li>
+<li>
+<p>一个分区，只能被一个消费者消费。Consumer 实例的数量应该等于该 Group 订阅 Topic 的分区总数 。如果需要高可用，则 一个分区被两个消费者消费比较合理</p>
+</li>
+</ul>
+<h3><span id="独立消费者组"> 独立消费者组</span></h3>
+<ul>
+<li>
+<p>Kafka Java Consumer 提供了一个名为 Standalone Consumer 的独立消费者类型。它没有消费者组的概念，每个消费者实例都是独立工作的，彼此之间毫无联系。</p>
+</li>
+<li>
+<p>独立消费者，仍然需要配置 <a target="_blank" rel="noopener" href="http://group.id">group.id</a> 。且一旦独立消费者 与 <a target="_blank" rel="noopener" href="http://xn--group-3h2hx0n.id">其他group.id</a> 重名，当独立消费者提交位移时，Kafka 就会立即抛出 CommitFailedException 异常，这已是一个坑，<a target="_blank" rel="noopener" href="http://xn--group-338lt35b.id">管理group.id</a> 也是必要的。</p>
+</li>
+</ul>
+<h3><span id="提交"> 提交</span></h3>
+<h4><span id="自动提交"> 自动提交</span></h4>
+<ul>
+<li>
+<p>尽量不要使用，除非数据丢失无所谓，比如坐标点数据。</p>
+</li>
+<li>
+<p>enable.auto.commit = true 。 开启自动提交。</p>
+</li>
+<li>
+<p>auto.commit.interval.ms=5 。表明 Kafka 每 5 秒会为你自动提交一次位移</p>
+</li>
+</ul>
+<h4><span id="手动提交范例"> 手动提交范例</span></h4>
+<ul>
+<li>
+<p>同步提交带重试功能 ，如果不需要高吞吐量，可以利用 commitSync 的自动重试来规避那些瞬时错误，比如网络的瞬时抖动</p>
+</li>
+<li>
+<p>提交模板</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;<br>        ConsumerRecords&lt;String, String&gt; records = <br>            consumer.poll(Duration.ofSeconds(<span class="hljs-number">1</span>));<br>        process(records); <span class="hljs-comment">// 处理消息</span><br>        commitAysnc(); <span class="hljs-comment">// 使用异步提交规避阻塞</span><br>    &#125;<br>&#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>    handle(e); <span class="hljs-comment">// 处理异常</span><br>&#125; <span class="hljs-keyword">finally</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        consumer.commitSync(); <span class="hljs-comment">// 最后一次提交使用同步阻塞式提交</span><br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        consumer.close();<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h4><span id="精细管理位移"> 精细管理位移</span></h4>
+<ul>
+<li>Kafka Consumer API 还提供了一组更为方便的方法，可以帮助你实现更精细化的位移管理功能。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">commitSync(Map&lt;TopicPartition, OffsetAndMetadata&gt;) <br>commitAsync(Map&lt;TopicPartition, OffsetAndMetadata&gt;)<br><br><span class="hljs-keyword">private</span> Map&lt;TopicPartition, OffsetAndMetadata&gt; offsets = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();<br><span class="hljs-keyword">int</span> count = <span class="hljs-number">0</span>;<br>……<br>……  <br><span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;<br>    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofSeconds(<span class="hljs-number">1</span>));<br>    <span class="hljs-keyword">for</span> (ConsumerRecord&lt;String, String&gt; record: records) &#123;<br>        process(record);  <span class="hljs-comment">// 处理消息</span><br>        offsets.put(<span class="hljs-keyword">new</span> TopicPartition(record.topic(), record.partition()),<br>                    <span class="hljs-keyword">new</span> OffsetAndMetadata(record.offset() + <span class="hljs-number">1</span>); <br>        <span class="hljs-keyword">if</span>（count % <span class="hljs-number">100</span> == <span class="hljs-number">0</span>）&#123;<br>            consumer.commitAsync(offsets, <span class="hljs-keyword">null</span>); <span class="hljs-comment">// 回调处理逻辑是 null</span><br>        &#125;<br>                    <br>        count++;<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h3><span id="防止不必要rebalance"> <strong>防止不必要rebalance</strong></span></h3>
+<p>消费者重平衡，是我们最经常遇到的问题。这里罗列一下常见的原因，尽量避免。</p>
+<ul>
+<li>
+<p><strong>心跳超时</strong>会导致 Consumer 被 “踢出” Group</p>
+</li>
+<li>
+<p><strong>消费时间过长</strong> 会导致 Consumer 被 “踢出” Group</p>
+</li>
+<li>
+<p><strong>频繁的 Full GC 导致的长时间停顿</strong>，引发了 Rebalance，这个在高吞吐量的时候，也比较很常见。<br>需要联合gc情况一起排查。</p>
+</li>
+<li>
+<p><strong>总结</strong>：</p>
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="http://session.timeout.ms">session.timeout.ms</a> = 7s</p>
+<p><a target="_blank" rel="noopener" href="http://heartbeat.interval.ms">heartbeat.interval.ms</a> = 2s。</p>
+<p>解释：要保证 Consumer 实例在被判定为“dead”之前，能够发送至少 3 轮的心跳请求，即 <a target="_blank" rel="noopener" href="http://session.timeout.ms">session.timeout.ms</a> &gt;= 3 * <a target="_blank" rel="noopener" href="http://heartbeat.interval.ms">heartbeat.interval.ms</a>。</p>
+</li>
+<li>
+<p>设置 <a target="_blank" rel="noopener" href="http://max.poll.interval.ms">max.poll.interval.ms</a>  消费时长，根据业务的消费速度，预留充足的超时时间。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2><span id="消费者最佳实践"> 消费者最佳实践</span></h2>
+<h3><span id="消费者原则"> 消费者原则</span></h3>
+<ol>
+<li>缩短单条消息处理的时间。</li>
+<li>减少下游系统一次性消费的消息总数。</li>
+<li>消费系统使用多线程来加速消费。（<strong>最好方法</strong>）</li>
+<li>KafkaConsumer 类线程不安全，在多个线程中共享时，会抛 ConcurrentModificationException</li>
+<li>消费者启动多线程，n个Consumer对应n个线程，根据业务模式选择同步消费还是异步消费。</li>
+</ol>
+<p><strong>选型</strong></p>
+<ul>
+<li>方案一：多consumer + 相同线程消费。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">KafkaConsumerRunner</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br>     <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AtomicBoolean closed = <span class="hljs-keyword">new</span> AtomicBoolean(<span class="hljs-keyword">false</span>);<br>     <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> KafkaConsumer consumer;<br> <br>     <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>         <span class="hljs-keyword">try</span> &#123;<br>             consumer.subscribe(Arrays.asList(<span class="hljs-string">&quot;topic&quot;</span>));<br>             <span class="hljs-keyword">while</span> (!closed.get()) &#123;<br>			ConsumerRecords records = <br>				consumer.poll(Duration.ofMillis(<span class="hljs-number">10000</span>));<br>                 <span class="hljs-comment">//  执行消息处理逻辑</span><br>             &#125;<br>         &#125; <span class="hljs-keyword">catch</span> (WakeupException e) &#123;<br>             <span class="hljs-comment">// Ignore exception if closing</span><br>             <span class="hljs-keyword">if</span> (!closed.get()) <span class="hljs-keyword">throw</span> e;<br>         &#125; <span class="hljs-keyword">finally</span> &#123;<br>             consumer.close();<br>         &#125;<br>     &#125;<br> <br>     <span class="hljs-comment">// Shutdown hook which can be called from a separate thread</span><br>     <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">shutdown</span><span class="hljs-params">()</span> </span>&#123;<br>         closed.set(<span class="hljs-keyword">true</span>);<br>         consumer.wakeup();<br>     &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<ul>
+<li>方案二：单consumer + 多线程消费。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> KafkaConsumer&lt;String, String&gt; consumer;<br><span class="hljs-keyword">private</span> ExecutorService executors;<br>...<br> <br><span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> workerNum = ...;<br>executors = <span class="hljs-keyword">new</span> ThreadPoolExecutor(<br>	workerNum, workerNum, <span class="hljs-number">0L</span>, TimeUnit.MILLISECONDS,<br>	<span class="hljs-keyword">new</span> ArrayBlockingQueue&lt;&gt;(<span class="hljs-number">1000</span>), <br>	<span class="hljs-keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());<br> <br> <br>...<br><span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>)  &#123;<br>	ConsumerRecords&lt;String, String&gt; records = <br>		consumer.poll(Duration.ofSeconds(<span class="hljs-number">1</span>));<br>	<span class="hljs-keyword">for</span> (<span class="hljs-keyword">final</span> ConsumerRecord record : records) &#123;<br>		executors.submit(<span class="hljs-keyword">new</span> Worker(record));<br>	&#125;<br>&#125;<br>..<br></code></pre></div></td></tr></table></figure>
+<h2><span id="kafa拦截器"> kafa拦截器</span></h2>
+<p>Kafka 拦截器最低版本是0.10.0.0 。</p>
+<h3><span id="生产者拦截器"> 生产者拦截器</span></h3>
+<h4><span id="实现方法"> 实现方法</span></h4>
+<p><code>implement org.apache.kafka.clients.producer.ProducerInterceptor</code></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/apache/kafka/blob/1a7ad70f24a1fa6b1640c2f768457324bbcda0df/clients/src/main/java/org/apache/kafka/clients/producer/ProducerInterceptor.java">https://github.com/apache/kafka/blob/1a7ad70f24a1fa6b1640c2f768457324bbcda0df/clients/src/main/java/org/apache/kafka/clients/producer/ProducerInterceptor.java</a></p>
+<ul>
+<li>
+<p>onSend：该方法会在消息发送之前被调用。如果想在发送之前对消息“美美容”，可以使用此方法</p>
+</li>
+<li>
+<p>onAcknowledgement：该方法会在消息成功提交或发送失败之后被调用。</p>
+<p>onAcknowledgement 的调用要早于 callback 的调用。</p>
+</li>
+</ul>
+<h4><span id="备注"> <strong>备注</strong>：</span></h4>
+<ul>
+<li>两个方法不是在同一个线程中被调用的，如果两个方法中调用了某个共享可变对象，要保证线程安全</li>
+<li>不能阻塞，别放一些太重的逻辑进去，否则你会发现你的 Producer TPS 直线下降</li>
+</ul>
+<h3><span id="消费者拦截器"> 消费者拦截器</span></h3>
+<h4><span id="实现方法"> 实现方法</span></h4>
+<p><code>implement org.apache.kafka.clients.consumer.ConsumerInterceptor</code></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/apache/kafka/blob/1a7ad70f24a1fa6b1640c2f768457324bbcda0df/clients/src/main/java/org/apache/kafka/clients/consumer/ConsumerInterceptor.java">https://github.com/apache/kafka/blob/1a7ad70f24a1fa6b1640c2f768457324bbcda0df/clients/src/main/java/org/apache/kafka/clients/consumer/ConsumerInterceptor.java</a></p>
+<ul>
+<li>
+<p>onConsume：该方法在消息返回给 Consumer 程序之前调用。在开始正式处理消息之前，</p>
+<p>拦截器会先拦一道，搞一些事情，之后再返回给你。</p>
+</li>
+<li>
+<p>onCommit：Consumer 在提交位移之后调用该方法。通常在该方法中做一些审计类业务</p>
+<p>比如打日志，统计等。</p>
+</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/">消息系统</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka/">kafka</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/kafka/">kafka</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/08/02/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka%E3%80%905%E3%80%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">kafka【5】命令行工具</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/02/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka%E3%80%903%E3%80%91server%E7%AB%AF%E9%85%8D%E7%BD%AE%E5%AE%9E%E8%B7%B5/">
+                        <span class="hidden-mobile">kafka【3】server端配置实践</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+    
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

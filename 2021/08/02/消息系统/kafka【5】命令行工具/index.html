@@ -14,11 +14,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="去吧，把服务照明">
+  <meta name="description" content="">
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-  <title>监控规范 - Hexo</title>
+  <title>kafka【5】命令行工具 - Hexo</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
 
@@ -163,7 +163,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="监控规范">
+            <span class="h2" id="subtitle" title="kafka【5】命令行工具">
               
             </span>
 
@@ -173,8 +173,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-07-30 17:27" pubdate>
-        2021年7月30日 下午
+      <time datetime="2021-08-02 16:24" pubdate>
+        2021年8月2日 下午
       </time>
     </span>
   
@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      385 字
+      515 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      5
+      10
        分钟
     </span>
   
@@ -225,292 +225,46 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">监控规范</h1>
+            <h1 style="display: none">kafka【5】命令行工具</h1>
             
             <div class="markdown-body">
-              <p>去吧，把服务照明</p>
-<span id="more"></span>
+              <span id="more"></span>
 <hr>
-<h2><span id="常见监控点"> 常见监控点</span></h2>
-<h3><span id="系统层"> 系统层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>虚拟机监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>容器监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="网络层"> 网络层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>监控专线带宽</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>交换机基本情况</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>网络延迟</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="中间件"> 中间件</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>注册中心</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>mysql</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>redis</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>es</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="应用程序本身"> 应用程序本身</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>jvm</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>GC</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>内存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>线程</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>队列</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>缓存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>可用性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>业务正确性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2><span id="日志规范"> 日志规范</span></h2>
-<h4><span id="日志规范"> 日志规范</span></h4>
-<ol>
-<li>对外服务接口，所有if分支需要打印日志</li>
-<li>使用日志异步配置</li>
-<li>禁止打印全部实体，打印实体id即可，实体关键属性即可</li>
-<li>打印traceId</li>
-</ol>
-<h4><span id="日志分级"> 日志分级</span></h4>
+<h2><span id="命令行工具"> 命令行工具</span></h2>
+<h3><span id="生产消息"> 生产消息</span></h3>
+<p>生产消息使用 kafka-console-producer 脚本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> bin/kafka-console-producer.sh --broker-list kafka-host:port --topic test-topic --request-required-acks -1 --producer-property compression.type=lz4</span><br></code></pre></div></td></tr></table></figure>
+<h3><span id="消费消息"> 消费消息</span></h3>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> bin/kafka-console-consumer.sh --bootstrap-server kafka-host:port --topic test-topic --group test-group --from-beginning --consumer-property enable.auto.commit=<span class="hljs-literal">false</span></span> <br></code></pre></div></td></tr></table></figure>
+<h3><span id="测试生产者性能"> 测试生产者性能</span></h3>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> bin/kafka-producer-perf-test.sh --topic test-topic --num-records 10000000 --throughput -1 --record-size 1024 --producer-props bootstrap.servers=kafka-host:port acks=-1</span> <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">返回值</span><br>linger.ms=2000 compression.type=lz4 2175479 records sent, 435095.8 records/sec (424.90 MB/sec), 131.1 ms avg latency, 681.0 ms max latency. 4190124 records sent, 838024.8 records/sec (818.38 MB/sec), 4.4 ms avg latency, 73.0 ms max latency. 10000000 records sent, 737463.126844 records/sec (720.18 MB/sec), 31.81 ms avg latency, 681.00 ms max latency, 4 ms 50th, 126 ms 95th, 604 ms 99th, 672 ms 99.9th.<br></code></pre></div></td></tr></table></figure>
 <ul>
-<li>DEBUG 用于开发调试；敏感信息一律使用debug。</li>
-<li>INFO 用于重要流程信息；if 各种分支</li>
-<li>WARN 用于需要关注但无需报警的问题；一般是为了方便排查的日志。</li>
-<li>ERROR 需要报警的异常；一般是系统异常、需要人工介入的业务异常</li>
+<li>
+<p>上述命令， 向指定主题发送了 1 千万条消息，每条消息大小是 1KB，</p>
+</li>
+<li>
+<p>上述输出，表明测试生产者生产的消息中，有 99% 消息的延时都在 604ms 以内。</p>
+<p>你完全可以把这个数据当作这个生产者对外承诺的 SLA。</p>
+</li>
 </ul>
-<h4><span id="日志分割"> 日志分割</span></h4>
-<p>近期（7天内）日志，根据日期&amp;大小分割，保存日志原文。<br>如果有日志平台，则不需要保存长期日志<br>没有日志平台的话，需要保存30天日志，根据日期分割，使用压缩格式，文件中要体现时间。</p>
-<h4><span id="日志中的信息"> 日志中的信息</span></h4>
+<h3><span id="测试消费者性能"> 测试消费者性能</span></h3>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> bin/kafka-consumer-perf-test.sh --broker-list kafka-host:port --messages 10000000 --topic test-topic</span> <br><span class="hljs-meta">#</span><span class="bash">返回值</span><br>start.time, end.time, data.consumed.in.MB, MB.sec, data.consumed.in.nMsg, nMsg.sec, rebalance.time.ms, fetch.time.ms, fetch.MB.sec, fetch.nMsg.sec 2019-06-26 15:24:18:138, 2019-06-26 15:24:23:805, 9765.6202, 1723.2434, 10000000, 1764602.0822, 16, 5651, 1728.1225, 1769598.3012<br></code></pre></div></td></tr></table></figure>
+<h3><span id="查看topic消息总数"> 查看topic消息总数</span></h3>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">最早位移</span><br><span class="hljs-meta">$</span><span class="bash"> bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list kafka-host:port --time -2 --topic test-topic</span><br> <br>test-topic:0:0<br>test-topic:1:0<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">最新位移</span><br><span class="hljs-meta">$</span><span class="bash"> bin/kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list kafka-host:port --time -1 --topic test-topic</span><br> <br>test-topic:0:5500000<br>test-topic:1:5500000<br><br></code></pre></div></td></tr></table></figure>
 <ul>
-<li></li>
+<li>
+<p>消息总数 =  最早位移 + 最新位移</p>
+</li>
+<li>
+<p>对于本例，test-topic 总的消息数为 5500000 + 5500000，等于 1100 万条。</p>
+</li>
+</ul>
+<h3><span id="查询消费者组位移"> 查询消费者组位移</span></h3>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> bin/kafka-console-consumer-groups.sh --bootstrap-server kafka-host:port --describe --group test-group</span><br></code></pre></div></td></tr></table></figure>
+<ul>
+<li>CURRENT-OFFSET 表示该消费者当前消费的最新位移，</li>
+<li>LOG-END-OFFSET 表示对应分区最新生产消息的位移，</li>
+<li>LAG 列是两者的差值。</li>
 </ul>
 
             </div>
@@ -521,7 +275,9 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                      <a class="hover-with-bg" href="/categories/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/">消息系统</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka/">kafka</a>
                     
                   </div>
                 
@@ -529,9 +285,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/">技术规范</a>
-                    
-                      <a class="hover-with-bg" href="/tags/devOps/">devOps</a>
+                      <a class="hover-with-bg" href="/tags/kafka/">kafka</a>
                     
                   </div>
                 
@@ -543,6 +297,23 @@
                   
                 </p>
               
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/02/%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F/kafka%E3%80%904%E3%80%91client%E7%AB%AF%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+                        <span class="hidden-mobile">kafka【4】client端最佳实践</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
               
             </div>
 
