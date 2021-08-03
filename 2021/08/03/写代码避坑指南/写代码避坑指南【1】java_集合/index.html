@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      759 字
+      754 字
     </span>
   
 
@@ -232,30 +232,16 @@
 <span id="more"></span>
 <hr>
 <h2><span id="写java避坑指南1有关collect包"> 写java避坑指南【1】有关collect包</span></h2>
+<p>多线程中，使用线程不安全的容器，后果不仅仅是数据不对，还可能导致程序死循环。<br><strong>不要无脑使用 线程不安全 容器</strong>。</p>
 <h3><span id="map"> Map</span></h3>
 <h4><span id="线程不安全"> 线程不安全</span></h4>
 <ul>
-<li>
-<p>多线程中，使用线程不安全的容器，后果不仅仅是数据不对，还可能导致程序死循环。所以还是不能无脑使用现成不安全的容器。</p>
-</li>
-<li>
-<p>HashMap，中规中矩，默认使用。</p>
-</li>
-<li>
-<p>Treemap，实现了SortedMap，放入的Key必须实现<code>Comparable</code>接口，有key排序首选使用。</p>
-</li>
-<li>
-<p>EnumMap，如果作为key的对象是enum类型，首选使用，效率很高。</p>
-</li>
-<li>
-<p>web开发中也需要空的 Map。使用<code>Map&lt;K, V&gt; emptyMap()</code></p>
-</li>
-<li>
-<p>LinkedHashMap，要求key按照，put顺序存储时使用。</p>
-</li>
-<li>
-<p>IdentityHashMap，kv的查找关系不是equals，而是==。即java的地址查找，只有序列化框架可能会用到，业务开发一般用不到。</p>
-</li>
+<li>HashMap，中规中矩，默认使用。</li>
+<li>Treemap，实现了SortedMap，放入的Key必须实现<code>Comparable</code>接口，有key排序首选使用。</li>
+<li>EnumMap，如果作为key的对象是enum类型，首选使用，效率很高。</li>
+<li>web开发中也需要空的 Map。使用<code>Map&lt;K, V&gt; emptyMap()</code></li>
+<li>LinkedHashMap，要求key按照，put顺序存储时使用。</li>
+<li>IdentityHashMap，kv的查找关系不是equals，而是==。即java的地址查找，只有序列化框架可能会用到，业务开发一般用不到。</li>
 </ul>
 <h4><span id="线程安全"> 线程安全</span></h4>
 <ul>
