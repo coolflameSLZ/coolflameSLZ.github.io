@@ -14,11 +14,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="去吧，把服务照明">
+  <meta name="description" content="线上有问题，不要急着跑路。先试试这边排错宝典，无需自宫，轻松超神。">
   <meta name="author" content="小中哥要看大白球球">
   <meta name="keywords" content="">
   
-  <title>监控规范 - 中委会</title>
+  <title>常见后端排错宝典 - 中委会</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
 
@@ -163,7 +163,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="监控规范">
+            <span class="h2" id="subtitle" title="常见后端排错宝典">
               
             </span>
 
@@ -173,8 +173,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-07-30 17:27" pubdate>
-        2021年7月30日 下午
+      <time datetime="2021-08-04 00:01" pubdate>
+        2021年8月4日 凌晨
       </time>
     </span>
   
@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      385 字
+      1.4k 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      5
+      20
        分钟
     </span>
   
@@ -225,293 +225,135 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">监控规范</h1>
+            <h1 style="display: none">常见后端排错宝典</h1>
             
             <div class="markdown-body">
-              <p>去吧，把服务照明</p>
+              <p>线上有问题，不要急着跑路。先试试这边排错宝典，无需自宫，轻松超神。</p>
 <span id="more"></span>
 <hr>
-<h2><span id="常见监控点"> 常见监控点</span></h2>
-<h3><span id="系统层"> 系统层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>虚拟机监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>容器监控</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="网络层"> 网络层</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>监控专线带宽</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>交换机基本情况</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>网络延迟</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="中间件"> 中间件</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>注册中心</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>mysql</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>redis</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>es</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3><span id="应用程序本身"> 应用程序本身</span></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>监控点</th>
-<th>常用监控方案及工具</th>
-<th>常见指标</th>
-<th>报警点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>jvm</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>GC</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>内存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>线程</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>队列</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>缓存</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>可用性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>业务正确性</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2><span id="日志规范"> 日志规范</span></h2>
-<h4><span id="日志规范"> 日志规范</span></h4>
+<h1><span id="常见后端排错宝典"> 常见后端排错宝典</span></h1>
+<h2><span id="1-确定排错的环境"> 1. 确定排错的环境</span></h2>
+<h3><span id="测试环境"> 测试环境</span></h3>
+<p>测试环境可以使用远程断点、 Arthas、等附加进程进行排错。</p>
+<p>测试环境也允许造数据，制造压力场景。</p>
+<h3><span id="生产环境"> 生产环境</span></h3>
 <ol>
-<li>对外服务接口，所有if分支需要打印日志</li>
-<li>使用日志异步配置</li>
-<li>禁止打印全部实体，打印实体id即可，实体关键属性即可</li>
-<li>打印traceId</li>
+<li>线上服务，首先进行恢复，回滚。</li>
+<li>保留oom日志，dump日志。如果是死锁，cpu飙升，则先不管原因，回滚后去测试环境查。</li>
+<li>如果不紧急，比如mis后台，可以先申请暂停使用，尽量不要超过40分钟。</li>
+<li>通过日志，监控，快照，arthas进行分析。</li>
 </ol>
-<h4><span id="日志分级"> 日志分级</span></h4>
+<h4><span id="工具arthas-快速下载"> 工具：Arthas 快速下载</span></h4>
 <ul>
-<li>DEBUG 用于开发调试；敏感信息一律使用debug。</li>
-<li>INFO 用于重要流程信息；if 各种分支</li>
-<li>WARN 用于需要关注但无需报警的问题；一般是为了方便排查的日志。</li>
-<li>ERROR 需要报警的异常；一般是系统异常、需要人工介入的业务异常</li>
+<li>
+<p>神器：<a target="_blank" rel="noopener" href="https://arthas.aliyun.com/doc/">https://arthas.aliyun.com/doc/</a></p>
+</li>
+<li>
+<p><code>wget https://arthas.aliyun.com/arthas-boot.jar;java -jar arthas-boot.jar</code></p>
+</li>
+<li>
+<p>命令列表https://arthas.aliyun.com/doc/commands.html</p>
+</li>
 </ul>
-<h4><span id="日志分割"> 日志分割</span></h4>
-<p>近期（7天内）日志，根据日期&amp;大小分割，保存日志原文。<br>如果有日志平台，则不需要保存长期日志<br>没有日志平台的话，需要保存30天日志，根据日期分割，使用压缩格式，文件中要体现时间。</p>
-<h4><span id="日志中的信息"> 日志中的信息</span></h4>
+<h3><span id="常见问题解决思路"> 常见问题解决思路</span></h3>
+<h4><span id="程序发布后立即显现的bug"> 程序发布后，立即显现的bug</span></h4>
+<p>先无脑回滚，然后再解决，一般是数据问题，要不然早测出来了。</p>
+<h4><span id="cpu"> CPU</span></h4>
 <ul>
-<li></li>
+<li>
+<p>使用 top、vmstat、pidstat、ps 等工具排查</p>
+<ol>
+<li>
+<p>$<code>top</code>：找到cpu100%的Pid。</p>
+</li>
+<li>
+<p>$<code>top -Hp 进程号</code>：查看java进程下的所有线程占CPU的情况。</p>
+</li>
+<li>
+<p>$<code>printf &quot;%x\n&quot; 线程ID</code>： 后面查看线程都需要16进制数。<br>例如，printf “%x\n” 线程ID ，打印：16b1，那么在jstack中线程号就是16b1</p>
+</li>
+<li>
+<p>$ <code>jstack 进程号 | grep 线程ID</code> ：通过jstack查看某一个线程。nid表示那个线程的状态。<br>例如<code>&quot;VM Thread&quot; os_prio=0 tid=0x00007f871806e000 nid=0x16b1 runnable</code>，<br>线程名=VM Thread，线程id=0x16b1，线程状态=runnable</p>
+</li>
+<li>
+<p>$<code>jstat -gcutil 进程号 统计间隔毫秒 统计次数（缺省代表一直统计）</code>，查看某进程GC持续变化情况，</p>
+<figure class="highlight shell"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs shell">shell@Alicloud:~$ jstat -gcutil 1287 100 100<br>  S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT     GCT   <br>  0.00   0.00  58.86  60.00  98.26  96.89     93    0.409     3    0.265    0.674<br>  0.00   0.00  58.86  60.00  98.26  96.89     93    0.409     3    0.265    0.674<br>  0.00   0.00  58.86  60.00  98.26  96.89     93    0.409     3    0.265    0.674<br>  0.00   0.00  58.86  60.00  98.26  96.89     93    0.409     3    0.265    0.674<br></code></pre></div></td></tr></table></figure>
+<p>如果FGC很大，且一直增大，可以确认Full GC!</p>
+<p>S0 S1 E 为新生代<br>
+O为老年代<br>
+M是元区间(方法区)<br>
+YGC新生代执行次数<br>
+YGCT新生代执行时间<br>
+FGC老年代执行次数<br>
+FGCT老年代执行时间<br>
+GCT总垃圾回收时间（单位秒）</p>
+</li>
+<li>
+<p>$<code>jmap -dump:format=b,file=dump_01.hprof pid</code>，导出某进程下内存heap输出到文件中。通过eclipse的mat工具查看内存中有哪些对象比较多。分析Full GC</p>
+</li>
+</ol>
+</li>
+<li>
+<p>使用 arthas</p>
+<ul>
+<li>
+<p>查看CPU使用率top n线程的栈</p>
+<p><code>thread -n 3</code></p>
+</li>
+<li>
+<p>查找线程是否有阻塞</p>
+<p><code>thread -b</code></p>
+</li>
 </ul>
+</li>
+<li>
+<p>有可能的点</p>
+<ul>
+<li>hashmap，并发死循环</li>
+<li>Full GC次数过多</li>
+<li>正则表达式非常消耗 CPU</li>
+<li>分布式锁的重试机制</li>
+<li>乐观锁、cas循环次数过多，或者竞争激烈</li>
+<li>Redis的端口6379被注入挖矿程序</li>
+<li>突发压力，看看是不是攻击。查Nginx Access Log</li>
+</ul>
+</li>
+</ul>
+<h4><span id="内存"> 内存</span></h4>
+<ul>
+<li>使用 free、top、ps、vmstat、cachestat、sar 等工具排查</li>
+</ul>
+<p>排查流程：</p>
+<p>​		通过堆转储后使用 MAT 分析。包含了堆现场全貌和线程栈信息，一般观察支配树图、直方图，查看占用大量内存的对象，快速定位到内存相关问题。</p>
+<p>注意点：</p>
+<p>​		Java 进程对内存的使用不仅仅是堆区，还包括线程使用的内存(线程个数 * 每一个线程的线程栈)和元数据区。每一个内存区都可能产生 OOM，可以结合监控观察 线程数、已加载类数量等指标分析。另外，我们需要注意看一下，JVM 参数的设置是否有 明显不合理的地方，限制了资源使用</p>
+<p><strong>IO 问题</strong></p>
+<p>IO 相关的问题，除非是代码问题引起的资源不释放等问题，否则通常都不是由 Java 进程 内部因素引发的。</p>
+<p><strong>网络相关</strong></p>
+<p>网络相关的问题，一般也是由外部因素引起的。对于连通性问题，结合异常信息通常比较容 易定位;对于性能或瞬断问题，可以先尝试使用 ping 等工具简单判断，如果不行再使用 tcpdump 或 Wireshark 来分析</p>
+<ol>
+<li>
+<p>程序外部外部因素，主机问题。</p>
+<p>解决方案：</p>
+<p><strong>CPU</strong> 相关问题，可以使用 top、vmstat、pidstat、ps 等工具排查;</p>
+<p><strong>内存</strong>相关问题，可以使用 free、top、ps、vmstat、cachestat、sar 等工具排查;</p>
+<p><strong>IO</strong> 相关问题，可以使用 lsof、iostat、pidstat、sar、iotop、df、du 等工具排查;</p>
+<p><strong>网络</strong>相关问题，可以使用 ifconfig、ip、nslookup、dig、ping、tcpdump、iptables 等工具排查。</p>
+</li>
+<li>
+<p>依赖的中间件问题，比如 mysql， redis，kafka不可用</p>
+<ol>
+<li>先排查网络问题，中间件稳定性较高，没有特殊情况，本身不容易挂</li>
+<li>如果是私有化部署，排查那台机器有没有问题，可以通过运维平台看主机信息。</li>
+<li>排查组件进程基本情况，观察各种监控指标;</li>
+<li>查看组件的日志输出，特别是错误日志，中间件日志，尽量接入日志平台。</li>
+<li>进入组件控制台，使用一些命令查看其运作情况。</li>
+</ol>
+</li>
+<li>
+<p>程序假死的问题，通常需要先通过重启和扩容解决问题，之后再进行分析，不过最好能留一个节点作为现场。</p>
+</li>
+</ol>
 
             </div>
             <hr>

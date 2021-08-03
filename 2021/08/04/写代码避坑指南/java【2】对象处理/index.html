@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;light&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#F0CF55">
+  <meta name="description" content="java对象操作，避坑指南。背了这么原理和实现，你真的能用对么？远离八股文工程师！">
+  <meta name="author" content="小中哥要看大白球球">
+  <meta name="keywords" content="">
+  
+  <title>java【2】对象处理 - 中委会</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":160,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":4},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 35vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>中委会</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210730103638.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="java【2】对象处理">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-04 02:08" pubdate>
+        2021年8月4日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      17
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">java【2】对象处理</h1>
+            
+            <div class="markdown-body">
+              <p>java对象操作，避坑指南。背了这么原理和实现，你真的能用对么？远离八股文工程师！</p>
+<span id="more"></span>
+<hr>
+<h1><span id="写java避坑指南对象处理"> 写java避坑指南：对象处理</span></h1>
+<h2><span id="等值问题"> 等值问题</span></h2>
+<h3><span id="比较符选择"> 比较符选择</span></h3>
+<ul>
+<li><strong>所有的判等</strong>都需要用 objects.equals 判断，即使他们是基本类型。</li>
+<li>明确需求，判断引用是否相等，才可以使用==</li>
+</ul>
+<h3><span id="hashcode-equals-compareto"> hashCode 、 equals 、 compareTo</span></h3>
+<ul>
+<li>两个方法要配对实现，且要注意空指针问题。</li>
+<li>如果要实现 compareTo ，必须保证 他和 equals 的逻辑一致性。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">//compareTo 不仅要比较大小，同样也会比较等于的情况。</span><br><span class="hljs-comment">//这是正确的例子</span><br><span class="hljs-meta">@Data</span><br><span class="hljs-meta">@AllArgsConstructor</span><br><span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StudentRight</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Comparable</span>&lt;<span class="hljs-title">StudentRight</span>&gt; </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> id;<br>    <span class="hljs-keyword">private</span> String name;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">compareTo</span><span class="hljs-params">(StudentRight other)</span> </span>&#123;<br>        <span class="hljs-comment">//  compare要包括所有的字段，</span><br>        <span class="hljs-comment">//  不然会出现, 不该相等确相等的问题。</span><br>        <span class="hljs-keyword">return</span> Comparator<br>                .comparingInt(StudentRight::getId)<br>                .thenComparing(StudentRight::getName)<br>                .compare(<span class="hljs-keyword">this</span>, other);<br>    &#125;<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h3><span id="lombok"> lombok</span></h3>
+<p>@EqualsAndHashCode 默认实现没有使用父类属性，<br>使用 @EqualsAndHashCode(callSuper = true) 来支持父类字段</p>
+<hr>
+<h2><span id="nullamp空指针"> NULL&amp;空指针</span></h2>
+<h3><span id="空指针哲学"> 空指针哲学</span></h3>
+<ul>
+<li>使用判空方式 或 Optional 方式来避免出现空指针异常，不一定是解决问题的最好方式，<br>空指针没出现可能隐藏了更深的 Bug，同样需要考虑为空的时候是应该出异常、设默认值、还是记录日志</li>
+<li>业务系统最基本的标准是不能出现未处理的空指针异常，有条件的话建议订阅空指针异常报警，以便及时发现及时处理。</li>
+</ul>
+<h3><span id="经常出现nullpointerexception的几种场景"> 经常出现NullPointerException的几种场景</span></h3>
+<ul>
+<li>包装类型，自动拆箱</li>
+<li>字符串，对象比较</li>
+<li>容器类不支持存储null 的时候，比如ConcurrentHashMap 不支持Value为Null</li>
+<li>级联调用不判空的时候</li>
+<li>方法或远程服务返回的 List 不是空而是 null，不判空，直接调用 List 的方法出现空指针异常。</li>
+</ul>
+<h3><span id="空指针排查"> 空指针排查</span></h3>
+<p>推荐使用线上诊断工具 Arthas 排查空指针，主要使用 watch 命令 和 stack命令</p>
+<p><a target="_blank" rel="noopener" href="https://alibaba.github.io/arthas/advanced-use.html#monitor-watch-trace">https://alibaba.github.io/arthas/advanced-use.html#monitor-watch-trace</a></p>
+<h3><span id="java8-optional"> java8 Optional</span></h3>
+<p>在Optional中，声明 orElse。无论值是否为空，orElse里面的方法都会执行一次。</p>
+<p>所以，orElse中的方法，不能有副作用。</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>		Integer getNumber = Optional.of(<span class="hljs-number">8</span>).orElse(getNum());<br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Integer <span class="hljs-title">getNum</span><span class="hljs-params">()</span> </span>&#123;<br>		System.out.println(<span class="hljs-string">&quot;getNum被调用了&quot;</span>);<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><span class="hljs-comment">// 输出</span><br>getNum被调用了<br>最终getNumber=<span class="hljs-number">8</span><br></code></pre></div></td></tr></table></figure>
+<h4><span id="jsondto-中的null"> JSON，DTO 中的null</span></h4>
+<p>对于 JSON -&gt; DTO 的过程，null 的表达歧义的，客户端不传某个属性，或者传null，这个属性在 DTO 中都是 null。<br>解决方案：使用 Optional 来包装，以区分客户端不传数据还是故意传 null。</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">// UserDto 使用Optional包装，区分 不传值还是故意传null值</span><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserDto</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> Long id;<br>    <span class="hljs-keyword">private</span> Optional&lt;String&gt; name;<br>    <span class="hljs-keyword">private</span> Optional&lt;Integer&gt; age;<br>&#125;<br><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserEntity</span> </span>&#123;<br>    <span class="hljs-meta">@Id</span><br>    <span class="hljs-keyword">private</span> Long id;<br>    <span class="hljs-meta">@Column(nullable = false)</span><br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-meta">@Column(nullable = false)</span><br>    <span class="hljs-keyword">private</span> String nickname;<br>    <span class="hljs-meta">@Column(nullable = false)</span><br>    <span class="hljs-keyword">private</span> Integer age;<br>    <span class="hljs-meta">@Column(nullable = false, columnDefinition = &quot;TIMESTAMP DEFAULT CURRENT_TIMESTAMP&quot;)</span><br>    <span class="hljs-keyword">private</span> Date createDate;<br>&#125;<br><br><span class="hljs-meta">@PostMapping(&quot;right&quot;)</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> UserEntity <span class="hljs-title">right</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> UserDto user)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (user == <span class="hljs-keyword">null</span> || user.getId() == <span class="hljs-keyword">null</span>)<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;用户Id不能为空&quot;</span>);<br><br>    UserEntity userEntity = userEntityRepository.findById(user.getId())<br>            .orElseThrow(() -&gt; <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;用户不存在&quot;</span>));<br>		<br>    <span class="hljs-comment">// 不传值会直接跳过31-33行</span><br>    <span class="hljs-keyword">if</span> (user.getName() != <span class="hljs-keyword">null</span>) &#123;<br>      	<span class="hljs-comment">// 传null值会执行34行</span><br>        userEntity.setName(user.getName().orElse(<span class="hljs-string">&quot;&quot;</span>));<br>    &#125;<br>  <br>    userEntity.setNickname(<span class="hljs-string">&quot;guest&quot;</span> + userEntity.getName());<br>  <br>    <span class="hljs-keyword">if</span> (user.getAge() != <span class="hljs-keyword">null</span>) &#123;<br>        userEntity.setAge(user.getAge().orElseThrow(() -&gt; <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;年龄不能为空&quot;</span>)));<br>    &#125;<br>    <span class="hljs-keyword">return</span> userEntityRepository.save(userEntity);<br>&#125;<br></code></pre></div></td></tr></table></figure>
+<h4><span id="mysql-null"> MySQL NULL</span></h4>
+<p>MySQL 中 sum 函数没统计到任何记录时，会返回 null 而不是 0，可以使用 IFNULL 函数把 null 转换为 0</p>
+<p>MySQL 中 count 字段不统计 null 值，COUNT(*) 才是统计所有记录数量的正确方式。</p>
+<p>MySQL 中 对 NULL进行判断只能使用 IS NULL 或 者 IS NOT NULL。</p>
+<hr>
+<h2><span id="对象转换问题"> 对象转换问题</span></h2>
+<h3><span id="转换100m对象一般会成倍使用内存空间"> 转换100M对象，一般会成倍使用内存空间。</span></h3>
+<p>数据库加载100M数据，但是 1GB 的 JVM 堆却无法完成导出操作，原因：</p>
+<ol>
+<li>mysql record -&gt; java entity  消耗了 200M；</li>
+<li>数据经过JDBC、Mybatis等框架，其实加载了2份数据，消耗了 200M * 2 ；</li>
+<li>entity -&gt; DTO 消耗了200M；</li>
+</ol>
+<p>最终，占用的内存达到了 200M + 400M + 200M = 800M</p>
+<p><strong>在进行容量评估时，我们不能认为一份数据在程序内存中也是一份，数据转换的时候，往往需要成倍的空间，即使将将满足，也会频繁Full GC。</strong></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/">写代码避坑指南</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java/">java</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/java/">java</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%AE%9E%E7%94%A8%E5%BC%80%E5%8F%91%E5%B0%8F%E6%8A%84/">实用开发小抄</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客禁止转载，笔者保留诉讼权利！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/03/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%901%E3%80%91%E9%9B%86%E5%90%88%E7%B1%BB/">
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+    
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
