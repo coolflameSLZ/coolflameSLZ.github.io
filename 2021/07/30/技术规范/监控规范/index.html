@@ -14,7 +14,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="去吧，把服务照明">
+  <meta name="description" content="服务难免有bug，我们可以忍。但服务一片黑，就是在自欺欺人。去吧把程序照明，别在掩耳盗铃。">
   <meta name="author" content="小中哥要看大白球球">
   <meta name="keywords" content="">
   
@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      385 字
+      575 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      5
+      7
        分钟
     </span>
   
@@ -228,7 +228,7 @@
             <h1 style="display: none">监控规范</h1>
             
             <div class="markdown-body">
-              <p>去吧，把服务照明</p>
+              <p>服务难免有bug，我们可以忍。但服务一片黑，就是在自欺欺人。去吧把程序照明，别在掩耳盗铃。</p>
 <span id="more"></span>
 <hr>
 <h2><span id="常见监控点"> 常见监控点</span></h2>
@@ -492,26 +492,24 @@
 </tbody>
 </table>
 <h2><span id="日志规范"> 日志规范</span></h2>
-<h4><span id="日志规范"> 日志规范</span></h4>
+<h3><span id="日志规范"> 日志规范</span></h3>
 <ol>
 <li>对外服务接口，所有if分支需要打印日志</li>
-<li>使用日志异步配置</li>
-<li>禁止打印全部实体，打印实体id即可，实体关键属性即可</li>
-<li>打印traceId</li>
+<li>使用logback异步打印日志。</li>
+<li>禁止打印全部实体，打印实体id即可，实体关键属性即可，尤其禁止打印 <code>toJsonString(obj)</code><br>序列化会调用obj的get、set方法，有可能产生意外。</li>
+<li>打印traceId，traceId需要同调用链工具绑定。做到 traceId &amp; log互相关联对方。<br>定时任务，线程池也需要打印traceId，具体方法见代码小抄，线程池上下文复用部分。</li>
 </ol>
-<h4><span id="日志分级"> 日志分级</span></h4>
+<h3><span id="日志分级"> 日志分级</span></h3>
 <ul>
-<li>DEBUG 用于开发调试；敏感信息一律使用debug。</li>
-<li>INFO 用于重要流程信息；if 各种分支</li>
-<li>WARN 用于需要关注但无需报警的问题；一般是为了方便排查的日志。</li>
-<li>ERROR 需要报警的异常；一般是系统异常、需要人工介入的业务异常</li>
+<li>DEBUG 用于开发调试；敏感信息一律使用debug + infoMask。</li>
+<li>INFO 用于重要流程信息；if 分支打info日志，是一个程序员负责任的表现。</li>
+<li>WARN 用于需要关注但无需报警的问题；一般是为了方便排查的日志，<br>常用与不需要报警的业务中断，比如 “订单不存在，商品过期，优惠失效 等”</li>
+<li>ERROR 需要报警的异常；一般是系统异常、需要人工介入的业务异常，<br>比如“转账失败，请联系系统管理员”</li>
 </ul>
-<h4><span id="日志分割"> 日志分割</span></h4>
+<h3><span id="日志分割"> 日志分割</span></h3>
 <p>近期（7天内）日志，根据日期&amp;大小分割，保存日志原文。<br>如果有日志平台，则不需要保存长期日志<br>没有日志平台的话，需要保存30天日志，根据日期分割，使用压缩格式，文件中要体现时间。</p>
-<h4><span id="日志中的信息"> 日志中的信息</span></h4>
-<ul>
-<li></li>
-</ul>
+<h3><span id="日志pattern"> 日志pattern</span></h3>
+<figure class="highlight cos"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs cos">[<span class="hljs-built_in">%level</span>] [<span class="hljs-built_in">%X</span>&#123;traceId&#125;] [<span class="hljs-built_in">%d</span>&#123;yyyy-MM-dd HH:mm:ss.SSS&#125;] [<span class="hljs-built_in">%thread</span>]  [<span class="hljs-built_in">%logger</span>&#123;<span class="hljs-number">36</span>&#125;:<span class="hljs-built_in">%line</span>] - [<span class="hljs-built_in">%msg</span>]<span class="hljs-built_in">%n</span><br></code></pre></div></td></tr></table></figure>
 
             </div>
             <hr>
@@ -532,6 +530,8 @@
                       <a class="hover-with-bg" href="/tags/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/">技术规范</a>
                     
                       <a class="hover-with-bg" href="/tags/%E8%BF%90%E7%BB%B4/">运维</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%9B%91%E6%8E%A7/">监控</a>
                     
                   </div>
                 
