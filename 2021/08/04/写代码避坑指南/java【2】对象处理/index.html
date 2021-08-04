@@ -14,7 +14,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="java对象操作，避坑指南。背了这么原理和实现，你真的能用对么？远离八股文工程师！">
+  <meta name="description" content="java对象操作，避坑指南。背了这么原理和实现，你真的能用对么？背八股文一时爽，实战派才能突破愚昧之巅， show you code now。">
   <meta name="author" content="小中哥要看大白球球">
   <meta name="keywords" content="">
   
@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.1k 字
+      1.2k 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      17
+      19
        分钟
     </span>
   
@@ -228,7 +228,7 @@
             <h1 style="display: none">java【2】对象处理</h1>
             
             <div class="markdown-body">
-              <p>java对象操作，避坑指南。背了这么原理和实现，你真的能用对么？远离八股文工程师！</p>
+              <p>java对象操作，避坑指南。背了这么原理和实现，你真的能用对么？背八股文一时爽，实战派才能突破愚昧之巅， show you code now。</p>
 <span id="more"></span>
 <hr>
 <h1><span id="写java避坑指南对象处理"> 写java避坑指南：对象处理</span></h1>
@@ -286,6 +286,8 @@
 </ol>
 <p>最终，占用的内存达到了 200M + 400M + 200M = 800M</p>
 <p><strong>在进行容量评估时，我们不能认为一份数据在程序内存中也是一份，数据转换的时候，往往需要成倍的空间，即使将将满足，也会频繁Full GC。</strong></p>
+<p>mybatis 大量返回集，请使用 流式查询语句。</p>
+<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">/** XXXmapper.java  **/</span><br><span class="hljs-meta">@Select(&quot;select * from t_iot where name = #&#123;name&#125; &quot;)</span><br><span class="hljs-meta">@Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = 1024)</span><br><span class="hljs-meta">@ResultType(InfoPO.class)</span><br><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">selectAutoList</span><span class="hljs-params">(<span class="hljs-meta">@Param(&quot;name&quot;)</span> String name,ResultHandler&lt;InfoPO&gt; handler)</span></span>;<br><br><br><span class="hljs-comment">/** 使用 **/</span><br>infoMapper.selectAutoList(name, resultContext -&gt; &#123;<br>  	resultContext.getResultObject();<br>  	<span class="hljs-comment">// do something</span><br>&#125;);<br></code></pre></div></td></tr></table></figure>
 
             </div>
             <hr>
@@ -315,7 +317,7 @@
               
                 <p class="note note-warning">
                   
-                    本博客禁止转载，笔者保留诉讼权利！
+                    转载到其他公开平台，需经过笔者同意（微信coolflamingo），笔者保留诉讼权利！
                   
                 </p>
               

@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      540 字
+      606 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      6
+      7
        分钟
     </span>
   
@@ -237,7 +237,7 @@
 <tr>
 <th>要求</th>
 <th>自查套路</th>
-<th>是否完成</th>
+<th>结论</th>
 <th>备注</th>
 </tr>
 </thead>
@@ -251,6 +251,12 @@
 <tr>
 <td>性能完备</td>
 <td>预期流量是多少<br>是否需要压测，其实很多服务不需要压测<br>如果有点压力的话，可以与运维沟通加点机器<br>或者与组长提前沟通一下，说一下压力点</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>停机上线</td>
+<td>是否需要停机<br>大约停多长时间<br>影响面是多少</td>
 <td></td>
 <td></td>
 </tr>
@@ -280,7 +286,7 @@
 </tr>
 <tr>
 <td>配置文件</td>
-<td>是否是prod 配置文件，是否完备</td>
+<td>prod配置是否更新<br>旧配置是否备份</td>
 <td></td>
 <td></td>
 </tr>
@@ -316,13 +322,37 @@
 </tr>
 <tr>
 <td>拓展性</td>
-<td>是否是无状态应用<br>是否支持服务漂移<br>有状态应用需要主备同步，副本机制</td>
+<td>是否是无状态应用<br>是否支持服务漂移</td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td>回滚策略</td>
-<td>确定上一个版本的tag<br>中间件schema 回滚语句准备完成<br>是否需要回滚数据</td>
+<td>确定上一个版本的tag<br>中间件schema 回滚语句准备完成<br>是否需要回滚数据，怎么回滚<br>配置回滚</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>推荐实现</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>暴露应用内信息</td>
+<td>线程池、内存队列、</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>应用指标 Metrics 监控</td>
+<td>1. 程序指标，如 jvm参数，qps 等<br>2. 业务指标，在线人数，订单数量 等</td>
 <td></td>
 <td></td>
 </tr>
@@ -355,7 +385,7 @@
               
                 <p class="note note-warning">
                   
-                    本博客禁止转载，笔者保留诉讼权利！
+                    转载到其他公开平台，需经过笔者同意（微信coolflamingo），笔者保留诉讼权利！
                   
                 </p>
               
