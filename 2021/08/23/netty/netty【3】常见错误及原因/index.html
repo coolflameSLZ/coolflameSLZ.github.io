@@ -14,13 +14,29 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="">
+  <meta name="description" content="李林峰- 跟着案例学netty ，精华摘抄 3">
   <meta name="author" content="小中哥要看大白球球">
   <meta name="keywords" content="">
   
-  <title>标签 - java - 中委会</title>
+  <title>netty【3】常见错误及原因 - 中委会</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
 
 
 
@@ -147,9 +163,46 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="标签 - java">
+            <span class="h2" id="subtitle" title="netty【3】常见错误及原因">
               
             </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-23 00:28" pubdate>
+        2021年8月23日 凌晨
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      204 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      2
+       分钟
+    </span>
+  
+
+  
+  
+</div>
 
             
           </div>
@@ -162,46 +215,100 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div class="py-5" id="board"
-          >
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
-
-<div class="list-group">
-  <p class="h4">共计 2 篇文章</p>
-  <hr>
-  
-  
-    
       
-      <p class="h5">2021</p>
-    
-    <a href="/2021/08/05/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%902%E3%80%91%E5%AF%B9%E8%B1%A1%E5%A4%84%E7%90%86/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">java【2】对象处理</span>
-      <time style="float: right;">08-05</time>
-    </a>
-  
-    
-    <a href="/2021/08/04/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%901%E3%80%91%E9%9B%86%E5%90%88%E7%B1%BB/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">java【1】集合类</span>
-      <time style="float: right;">08-04</time>
-    </a>
-  
-</div>
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">netty【3】常见错误及原因</h1>
+            
+            <div class="markdown-body">
+              <p>李林峰- 跟着案例学netty ，精华摘抄 3</p>
+<span id="more"></span>
+<hr>
+<h1><span id="netty3常见错误及原因"> netty【3】常见错误及原因</span></h1>
+<h2><span id="channelhandler收不到消息"> ChannelHandler收不到消息</span></h2>
+<p>常见原因：</p>
+<ol>
+<li>服务端解码 ChannelHandler 存在缺陷，解码失败</li>
+<li>客户端发送的消息畸形，导致服务端无法正确解码</li>
+<li>服务端 NIO线程被阻塞，导致无法读取消息，业务线程池队列积压，导致消息排队或者被丢弃。</li>
+<li>网络拦截</li>
+</ol>
+<p>定位套路：</p>
+<ol>
+<li>从第一个 ChannelHandler 开始 debug</li>
+<li>再解码器，业务handler之前加入 loggingHandler</li>
+<li>查看 NioEventLoop 线程状态</li>
+<li>通过 tcpdump 抓包查看是否发送成功</li>
+</ol>
+<h2><span id="内存泄漏"> 内存泄漏</span></h2>
+<ol>
+<li>通过 <code>jmap -dump:format=b,file=xx.pid</code> 打印内存堆栈，使用 memoryAnalyzer 工具进行内存占用分析，查看泄漏点。</li>
+</ol>
+<h2><span id="性能问题"> 性能问题</span></h2>
+<ol>
+<li>使用火焰图定位cpu问题。</li>
+</ol>
 
-
-
-
-              </div>
             </div>
-          </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/netty/">netty</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/netty/">netty</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    转载到其他公开平台，需经过笔者同意（微信coolflamingo），笔者保留诉讼权利！
+                  
+                </p>
+              
+              
+            </div>
+
+            
+          </article>
         </div>
       </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
     
 
     
@@ -281,9 +388,15 @@
 
 
 
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
 
 
 
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
 
 
 

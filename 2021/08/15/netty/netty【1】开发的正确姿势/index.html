@@ -14,11 +14,11 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="这是摘要">
+  <meta name="description" content="李林峰- 跟着案例学netty ，精华摘抄 1">
   <meta name="author" content="小中哥要看大白球球">
   <meta name="keywords" content="">
   
-  <title>注册中心的设计与选型 - 中委会</title>
+  <title>netty【1】开发的正确姿势 - 中委会</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
 
@@ -163,7 +163,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="注册中心的设计与选型">
+            <span class="h2" id="subtitle" title="netty【1】开发的正确姿势">
               
             </span>
 
@@ -173,8 +173,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-07-31 23:47" pubdate>
-        2021年7月31日 晚上
+      <time datetime="2021-08-15 18:10" pubdate>
+        2021年8月15日 晚上
       </time>
     </span>
   
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      20
+      21
        分钟
     </span>
   
@@ -225,252 +225,169 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">注册中心的设计与选型</h1>
+            <h1 style="display: none">netty【1】开发的正确姿势</h1>
             
             <div class="markdown-body">
-              <p>这是摘要</p>
+              <p>李林峰- 跟着案例学netty ，精华摘抄 1</p>
 <span id="more"></span>
 <hr>
-<h1><span id="注册中心的设计与选型"> 注册中心的设计与选型</span></h1>
-<h2><span id="注册中心主要功能"> 注册中心主要功能</span></h2>
-<h3><span id="获取服务信息"> 获取服务信息</span></h3>
-<ul>
-<li>路由信息，服务注册节点的IP，端口。</li>
-<li>服务元数据信息，序列化协议，负载均衡规则，节点权重等</li>
-</ul>
-<h3><span id="服务发现"> 服务发现</span></h3>
+<h1><span id="netty开发的正确姿势"> netty开发的正确姿势</span></h1>
+<p>核心避坑原则。</p>
+<p>Netty 测试环境就尽量压测。一定要有预发布环境，稳定运行48小时，观察内存后再正式发布。最大程度避免线上问题。</p>
+<h2><span id="channelhandler"> ChannelHandler</span></h2>
 <ul>
 <li>
-<p>启动时拉：消费方启动后，先从注册中心获取提供方的节点列表</p>
+<p>使用 <code>SimpleChannelInboundHandler</code>  <code>SimpleUserEventChannelHandler</code> ，非必须不使用 HandlerAdapter。</p>
+<p>SCIH 包装了 <code>Channel Inbound Handler Adapter</code> 。带有自动传递，自动释放ByteBuf的功能。<br><code>HandlerAdapter</code>则需要手动释放，手动传递，难免出个错。</p>
 </li>
 <li>
-<p>通知回调：提供方的节点变更时，主动调用消费方，让消费方重新拉取节点数据</p>
+<p>有时候，在 <code>SimpleChannelInboundHandler.channelRead0</code>之外调用生成的ByteBuf，有可能发生refCnt:0 的异常，需要注意。问题及时暴露，总比藏起来的bug要强。</p>
 </li>
 <li>
-<p>轮询拉取：回调不一定总是成功，所以需要兜底策略：轮询，分钟级别。</p>
-</li>
-</ul>
-<h3><span id="主动通知调用方服务节点发生变更"> 主动通知调用方，服务节点发生变更</span></h3>
-<h3><span id="机器迁移"> 机器迁移</span></h3>
-<h3><span id="权重"> 权重</span></h3>
-<h3><span id="灰度流量"> 灰度流量</span></h3>
-<h3><span id="健康检查"> 健康检查</span></h3>
-<ul>
-<li>
-<p>节点失效的常见原因</p>
+<p>常见TCP（protobuf）案例基本顺序为：</p>
 <ol>
-<li>部署重启，正常下线，可以主动通知注册中心</li>
-<li>服务异常终止，比如机器掉电，无法主动通知下线事件</li>
-<li>服务假死（注册中心线程可用，但工作线程不可用，表现起来就是依然可用向注册中心发心跳，但业务接口已经卡死不可用。）</li>
+<li>ssl，idleEvent，日志。</li>
+<li><code>ProtobufVarint32FrameDecoder</code>，<code>ProtobufDecoder（bizProtoBuf.getDefaultInstance）</code>，<code>ProtobufVarint32LengthFieldPrepender</code>，<code>ProtobufEncoder</code> （编解码）</li>
+<li><code>tcpIdleEventHandler</code>，<code>authHandler</code>，<code>bizHandler</code> （业务）</li>
 </ol>
 </li>
 <li>
-<p>常用探活方案</p>
-<ul>
-<li>
-<p>客户端主动下线，能解决1</p>
+<p>常见Http案例基本顺序：</p>
+<ol>
+<li>ssl，idleEvent，日志。</li>
+<li><code>HttpServerCodec</code> ，<code>HttpObjectAggregator</code>，<code>ChunkedWriteHandler</code> （编解码）</li>
+<li><code>WebSocketServerCompressionHandler</code>，<code>WebSocketServerProtocolHandler</code> （http压缩）</li>
+<li><code>authHandler</code>，<code>IdleEventHandler</code>，<code>bizHandler</code>，（业务）</li>
+</ol>
 </li>
 <li>
-<p>客户端心跳上报，能解决 1，2</p>
+<p>自定义的业务Handler：</p>
+<ol>
+<li>
+<p>io业务，不能再nioeventLoop中进行。需要使用异步线程池。</p>
 </li>
 <li>
-<p>注册中心主动探活，探测工作线程是否可用。能解决 1，2，3</p>
+<p>异步线程池，不要使用blockingqueue，不要带锁，使用guava eventbus，或disruptor</p>
 </li>
-<li>
-<p>consumer 异常上报，解决  1，2，3</p>
-</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h2><span id="开源注册中心选型"> 开源注册中心选型</span></h2>
-<h3><span id="cap定理"> CAP定理</span></h3>
-<p>本质上，注册中心是一个高可用，高数据一致性的分布式存储，里面存了各个节点的数据。</p>
-<p>那么分布式cun存储，就要搬出CAP理论了：</p>
-<ul>
-<li>（partition toleran）数据可靠性，数据是冗余存储的，不会因为单节点故障导致数据整体丢失。</li>
-<li>（consistency）数据一致性，个节点间的数据，最终会保证统一。</li>
-<li>（availability）服务整体可用性，服务不间断对外提供服务。</li>
-</ul>
-<h3><span id="ap-or-cp"> AP or CP</span></h3>
-<ul>
-<li>
-<p>AP，牺牲一致性，保证不间断对外提供服务。<br>代表组件：<strong>eureka，nacos</strong></p>
-</li>
-<li>
-<p>CP，优先保证数据一致性，当发现数据不一致的时候，重新选举，然后同步数据；<br>在这期间，停止对外服务 <br>代表组件：<strong>zookeeper</strong></p>
-</li>
-<li>
-<p>总结：</p>
-<p>如果是<strong>注册中心</strong>：一定选取AP模式，对于注册中心这个产品，节点状态数据变动不频繁。<br>注册中心不能因为自身的任何原因，让程序变得不可用，这是注册中心设计应该遵循的铁律<br>注册中心，如果节点变动超过阈值，甚至要主动报警；并防止节点下线（保护模式）。</p>
-<p>如果是<strong>分布式协调器</strong>，分布式锁。则需要使用CP模式。</p>
+</ol>
 </li>
 </ul>
-<h3><span id="注册中心的综合对比"> 注册中心的综合对比</span></h3>
-<table>
-<thead>
-<tr>
-<th>特征</th>
-<th>zookeeper</th>
-<th style="text-align:left">etcd</th>
-<th>consul</th>
-<th>eureka</th>
-<th>nacos</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>服务健康检查</td>
-<td>长连接</td>
-<td style="text-align:left">心跳</td>
-<td>心跳</td>
-<td>心跳</td>
-<td>支持</td>
-</tr>
-<tr>
-<td>多数据中心</td>
-<td>–</td>
-<td style="text-align:left">–</td>
-<td>支持</td>
-<td>–</td>
-<td>支持</td>
-</tr>
-<tr>
-<td>kv存储服务</td>
-<td>支持</td>
-<td style="text-align:left">支持</td>
-<td>支持</td>
-<td>–</td>
-<td>支持</td>
-</tr>
-<tr>
-<td>一致性</td>
-<td>Zab</td>
-<td style="text-align:left">raft</td>
-<td>raft</td>
-<td>弱一致性</td>
-<td>Distro</td>
-</tr>
-<tr>
-<td>CAP定理</td>
-<td>CP</td>
-<td style="text-align:left">CP</td>
-<td>CP</td>
-<td>AP</td>
-<td>AP</td>
-</tr>
-<tr>
-<td>服务端<br>主动探活</td>
-<td>私有协议</td>
-<td style="text-align:left">私有协议</td>
-<td>支持</td>
-<td>长轮询</td>
-<td>长轮询<br>v2使用长连接</td>
-</tr>
-<tr>
-<td>客户端访问</td>
-<td>SDK</td>
-<td style="text-align:left">http</td>
-<td>http&amp;dns</td>
-<td>http</td>
-<td>http</td>
-</tr>
-<tr>
-<td>社区支持</td>
-<td>积极</td>
-<td style="text-align:left">积极</td>
-<td>积极</td>
-<td>不积极</td>
-<td>积极</td>
-</tr>
-</tbody>
-</table>
-<h2><span id="ap-代表nacos"> AP 代表：Nacos</span></h2>
-<h3><span id="健康检查"> 健康检查</span></h3>
-<ul>
-<li>临时节点：心跳注册机制，ttl超时下线。</li>
-<li>持久化节点，比如数据库，使用服务端探活机制，标记不可用。如果不可用超过阈值，则报警。</li>
-<li>心跳阈值：5秒，上报；15秒，标记不健康；30秒，剔除节点</li>
-</ul>
-<h3><span id="数据模型"> 数据模型</span></h3>
+<h2><span id="使用-pooled-bytebuf"> 使用 Pooled ByteBuf</span></h2>
 <ul>
 <li>
-<p>数据存储，IP地址，端口，健康检查，ttl，权重。</p>
+<p>在Netty 4中实现了一个新的ByteBuf内存池，它是一个纯Java版本的 jemalloc （Facebook也在用）。不过，由于它不依赖于GC，需要小心内存泄漏。忘记在释放缓冲区，那么内存使用率会无限地增长。Netty默认不使用内存池，需要在创建客户端或者服务端的时候进行指定</p>
 </li>
 <li>
-<p>数据隔离，多重命名空间，User，NameSpace，Group</p>
-<p>User：多租户</p>
-<p>NameSpace：业务线隔离</p>
-<p>Group：A，B集群，平滑上线使用。</p>
-</li>
-</ul>
-<h3><span id="数据一致性保障"> 数据一致性保障</span></h3>
-<ul>
-<li>Raft CP一致性	【一般不使用该模式】</li>
-<li>Distro AP一致性 【无主模式】</li>
-</ul>
-<img src="https://cdn.jsdelivr.net/gh/coolflameSLZ/img/img20210802234926.png" srcset="/img/loading.gif" lazyload alt="image-20210802234926080" style="zoom: 33%;">
-<h3><span id="节点上下线逻辑"> 节点上下线逻辑</span></h3>
-<ul>
-<li>上线：</li>
-<li>下线：</li>
-</ul>
-<h2><span id="cp-代表zookeeper"> CP 代表：Zookeeper</span></h2>
-<h3><span id="选主逻辑"> 选主逻辑</span></h3>
-<h4><span id="zk节点的角色"> zk节点的角色</span></h4>
-<ul>
-<li>leader，响应写入请求，发起提案，超过半数follower同意写入，则写入成功。</li>
-<li>follower，响应查询，将写入请求转发给leader，参与选举 和 投票 以及写入操作。</li>
-<li>observer，响应查询，将写入请求转发给leader，不参与投票，只负责接收写入操作。</li>
-<li>leader，代表公司ceo，只输出提案，并最终确认提案；<br>follower，代表管理层，转发提案并参与投票，最终执行提案；<br>observer，代表一线员工，转发提案，不参与投票，执行提案。</li>
-</ul>
-<h4><span id="选主规则"> 选主规则</span></h4>
-<ul>
-<li>
-<p>获得法定数量的票数，即follower 数量过半。</p>
+<p>Pooled ByteBuf 是 Unpooled ByteBuf GC 次数少100倍，耗时减少8倍。如果是 透传类，网关类，RPC，MQ等高吞吐量场景，一定使用 Pooled ByteBuf。 频繁的GC 还会影响CPU</p>
 </li>
 <li>
-<p>判断依据</p>
+<p>构造 <code>ByteBuf</code> 的时候  ，使用 <code>ctx.alloc();</code> 不要使用<code>new PooledByteBufAllocator();</code></p>
+</li>
+<li>
+<p>Request msg 中的ByteBuf 释放策略</p>
 <ul>
-<li>Epoch：leader的任期</li>
-<li>ZXID：zookeeper的事务ID，越大表示事务越新</li>
-<li>SID：集群的每个节点唯一编号</li>
-<li>比较策略：连续排序，根据 任期、ZXID、SID 三个值，做比较。大的胜利。</li>
+<li><code>SimpleChannelInboundHandler</code> 释放</li>
+<li>走到 <code>final class DefaultChannelPipeline.TailContext</code> 中，最终会被 <code>onUnhandledInboundMessage</code>方法自动释放掉</li>
 </ul>
 </li>
 <li>
-<p>选主逻辑</p>
+<p>Resp msg 中的ByteBuf 释放策略</p>
 <ul>
-<li>
-<p>节点进入 looking 状态</p>
+<li>堆内的ByteBuf，netty会把他移到直接内存 <code>DirectByreBuf</code>，等网卡发送信息后，再释放。多了一步拷贝。而如果一开始就是 <code>DirectByreBuf</code> 则少了这一步拷贝，直接可以释放。<strong>俗称发送零拷贝。</strong></li>
+<li>所以对于 Resp msg 的内存泄漏，不仅要排查堆内，还要排查堆外直接内存。这一点很多同学都忽略了。</li>
+</ul>
 </li>
 <li>
-<p>广播发起投票，选出 最大 的节点，发起二次投票</p>
+<p>ByteBuf 不是线程安全的，防止并发操作。（在eventLoop中申请，在业务线程中操作，可能就会有问题，小心为上）</p>
+</li>
+</ul>
+<h2><span id="netty的并发问题"> netty的并发问题</span></h2>
+<ul>
+<li>
+<p>netty的作用域：</p>
+<ul>
+<li>NioServerSocketChannel，服务器启动类，对标server</li>
+<li>channelPipeline (channel)</li>
+<li>channelhandler (channelhandlercontext)</li>
+</ul>
 </li>
 <li>
-<p>超过半数成为主。</p>
+<p>netty为reactor模式，pipline间并行，pipeline内串行。</p>
+</li>
+<li>
+<p>channelHandler 实例，如果是线程安全的，则可以全局单例。</p>
+<p>如果不是线程安全的，则需要pipeline内单例，</p>
 </li>
 </ul>
+<h2><span id="netty常见的-bootstrap-options配置"> netty常见的 bootstrap options配置</span></h2>
+<ul>
+<li>SO_TIMEOUT: 最大阻塞时间，如果为0，则无限期阻塞</li>
+<li>SO_SNDBUF: 发送缓冲区大小</li>
+<li>SO_RCVBUF: 接受缓冲区大小</li>
+<li>SO_REUSEADDR: 重用端口，解决大量 time_wait 问题</li>
+<li>CONNECT_TIMEOUT_MILLIS: 客户端连接超时时间</li>
+<li>TCP_NODELAY: 是否开启 Nagle 算法 (数据包聚合传输)。要求低延时网络系统，需要打开这个选项。用性能换延时时间。</li>
+</ul>
+<h2><span id="writemsg"> write(msg)</span></h2>
+<ul>
+<li>使用 <code>ctx.write(msg)</code>  ，不要使用 <code>ctx.channel().writeAndFlush(msg)</code></li>
+<li>高并发场景，使用 <code>ctx.channel().isWritable()</code> 判断可写后再发送。根据业务决定高水位后丢弃消息还是延迟发送。</li>
+<li>消息积压的常见原因
+<ul>
+<li>网络瓶颈</li>
+<li>对端读取速度过慢，因为tcp本身具有流控属性。使用 <code>netstat -at</code> 查看recv-q send-q堆积情况</li>
+</ul>
 </li>
 </ul>
-<h3><span id="数据一致性保障"> 数据一致性保障</span></h3>
+<h2><span id="bytebuf-编解码码器"> ByteBuf 编解码码器</span></h2>
 <ul>
-<li>zab协议， todo。</li>
+<li>LengthFieldBasedFrameDecoder 的构造，一定要设置 length field 的长度。默认的构造器，该项是0，巨坑</li>
 </ul>
-<h3><span id="数据模型"> 数据模型</span></h3>
-<p>树状结构存储数据，分为永久节点和临时节点</p>
+<h2><span id="io-业务-线程分离策略"> IO ，业务 线程分离策略</span></h2>
+<ol>
+<li>
+<p>创建2个 NioEventLoopGroup，boss -&gt; NIO Acceptor ， worker -&gt; NIO channel IO线程</p>
+</li>
+<li>
+<p>解码的handler 要在NIO 线程中调用，不要在用户线程中调用，这样会多一次拷贝</p>
+</li>
+<li>
+<p>不要在 ChannelHandler中进行任何同步阻塞操作。</p>
+</li>
+<li>
+<p>如果业务Handler 没有IO操作（磁盘，数据库，网络），可以直接使用NIO线程。</p>
+</li>
+<li>
+<p>如果业务有阻塞，将消息封装成task，连同ctx，一起传递至业务线程中，最佳实践是disruptor、延时任务为rxjava。</p>
+</li>
+</ol>
+<h2><span id="空闲检测"> 空闲检测</span></h2>
 <ul>
-<li>DataNode ，Zookeeper中存储的最小单元，是持久化数据节点描述的最小单位</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">DataNode parent;  		<span class="hljs-comment">//父节点的引用 </span><br><span class="hljs-keyword">byte</span> data[]; 					<span class="hljs-comment">//该节点存储的数据</span><br>Long acl;							<span class="hljs-comment">//acl控制权限</span><br>StatPersisted stat; 	<span class="hljs-comment">//持久化节点状态</span><br>Set&lt;String&gt; children; <span class="hljs-comment">//子节点列表</span><br></code></pre></div></td></tr></table></figure>
+<li>选择双向心跳即可。 监听 reader_idle 事件，然后主动发送探活心跳，如果IO异常说明链路失效，主动关闭。如果发送成功，则等待对端返回消息，N个周期没有收到回复则由服务端主动关闭。</li>
+<li>使用自带的空闲检测机制，不要自己创建定时任务，密集长连接的定时检测很耗费资源</li>
+<li>使用IdleStateHandler的时候，闲检测的时间阈值不要定的太高，3分钟以内。如果15分钟，会导致心跳检测定时任务积压，如果老年代设置的比较大，则有可能让延时任务 <code>ScheduledFutureTask</code>对象升级为永久代，从而频繁触发full GC。</li>
+<li>心跳检测的层面：
 <ul>
-<li>DataTree，以树形结构存储了zookeeper中所有的数据信息</li>
+<li>tcp_keep-alive，不靠谱，交换机会阻断tcp ka信号</li>
+<li>协议层，如 mqtt， websocket，天生自带心跳检测。可以信赖</li>
+<li>应用层，私有tcp协议。使用 <code>ScheduledFutureTask</code> 判活即可。</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">ConcurrentHashMap&lt;String, DataNode&gt; nodes;	<span class="hljs-comment">//当前树存的节点</span><br>WatchManager dataWatches;										<span class="hljs-comment">//数据变更通知</span><br>WatchManager childWatches;									<span class="hljs-comment">//节点变更通知</span><br>String rootZookeeper;												<span class="hljs-comment">//根节点</span><br>Map&lt;Long, HashSet&lt;String&gt;&gt; ephemerals				<span class="hljs-comment">//临时节点信息</span><br></code></pre></div></td></tr></table></figure>
+</li>
+</ul>
+<h2><span id="流控"> 流控</span></h2>
 <ul>
-<li>ZKDataBase，负责管理Zookeeper的数据、会话信息和事务日志</li>
+<li>新增一个handler，extentend <code>channelActive()</code> 方法，建立连接时，判断本系统连接数、流量等指标是否达到保护值，如果达到阈值则拒绝连接。</li>
+<li>如果是TSL/SSL，则可以监听 <code>SslHandshakeCompleteEvent</code> 事件，进行保护控制。</li>
 </ul>
-<figure class="highlight java"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs java">DataTree dataTree;																			<span class="hljs-comment">//这zk的这棵树</span><br>ConcurrentHashMap&lt;Long, Integer&gt; sessionsWithTimeouts; 	<span class="hljs-comment">//客户端会话连接管理 FileTxnSnapLog snapLog; 																//事务日志</span><br></code></pre></div></td></tr></table></figure>
+<h2><span id="流量整形"> 流量整形</span></h2>
+<ul>
+<li>使用 <code>GlobalChannelTrafficShapingHandler</code>，单例即可。</li>
+<li>在pipeline中的位置是 2次编码(encoder)之后，2次解码(decoder)之前。</li>
+</ul>
+<h2><span id="断开策略"> 断开策略</span></h2>
+<p>服务端主动断开，客户端被动断开。<code>TIME_WAIT</code>表示主动关闭，<code>CLOSE_WAIT</code>表示被动关闭</p>
+<p>TIME WAIT，最终是可以关闭的，最差也是大量2MSL占用。</p>
+<p>CLOSE WAIT，倒数第二步是等ACK信号，如果没有则不会关闭，成为僵尸连接，服务器对于程序抢占的资源没有主动回收的权利，除非终止程序运行。</p>
 
             </div>
             <hr>
@@ -482,15 +399,15 @@
                     
                       <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
                     
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/netty/">netty</a>
+                    
                   </div>
                 
                 
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/%E8%AE%BE%E8%AE%A1/">设计</a>
-                    
-                      <a class="hover-with-bg" href="/tags/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">注册中心</a>
+                      <a class="hover-with-bg" href="/tags/netty/">netty</a>
                     
                   </div>
                 

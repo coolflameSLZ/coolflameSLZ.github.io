@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1k 字
+      1.3k 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      15
+      19
        分钟
     </span>
   
@@ -234,9 +234,10 @@
 <h2><span id="建表规范"> <strong>建表规范</strong></span></h2>
 <ol>
 <li>默认使用使用innoDB 引擎，字符集 utf8mb4</li>
-<li>表名称规范<br><code>[biz]_xxxx_[app|mis]_conf</code> : 在线、离线服务配置。 <br><code>[biz]_xxxx_record</code> : 数据表，最高优先级。<br><code>[biz]_xxxx_[app|mis]log</code> : 日志表，低优先级</li>
-<li>所有字段 NOT NULL ，整数字段考虑设置 unsigned</li>
-<li>字段最大长度，保持克制，防止建索引时空间不够。</li>
+<li>表名称规范<br><code>xxxx_conf</code> : 在线、离线服务配置。 <br><code>xxxx_record</code> : 数据表，最高优先级。<br><code>xxxx_log</code> : 日志表，低优先级<br><code>xxxx_tmp</code> : 临时表，低优先级<br><code>xxxx_stat</code> : 统计结果表，高优先级<br></li>
+<li>所有字段 NOT NULL ，整数字段考虑设置 unsigned，null字段查询可能不走索引。</li>
+<li>主键使用Long、Int；必须单调递增，没有分表需求，可以考虑Int自增。</li>
+<li>字段最大长度，保持克制，字段最大长度影响Btree的层高。</li>
 <li>字段长度大于1024需要拆分表，使用text， 主表上存拆分表id。</li>
 <li>日增10万，年增3000万，id使用bigint，雪花算法，根据并发情况考虑分表。</li>
 <li>字段顺序依次为：主键、业务主键、状态、各种外键、各种分类、具体props、base属性… <br>正确示例：id，order_id，order_status，product_id，user_id，order_time<br>规范，保证代码可读性</li>
@@ -331,6 +332,9 @@
 <p>超过10万行数据，首先确定分页的必要性；能否转换为下拉查询，或时间查询。<br>必须精确分页的话，查询使用 inner join</p>
 <figure class="highlight sql"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> tables <span class="hljs-keyword">inner</span> <span class="hljs-keyword">join</span><br>( <span class="hljs-keyword">select</span> id <span class="hljs-keyword">from</span> tables <span class="hljs-keyword">where</span> [条件]  <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> xxx limie <span class="hljs-number">10000</span>,<span class="hljs-number">10</span> )<br><span class="hljs-keyword">using</span> id;<br></code></pre></div></td></tr></table></figure>
 </li>
+<li>
+<p>使用archery执行数据库作业。</p>
+</li>
 </ol>
 <h2><span id="分库分表后查询规范"> <strong>分库分表后查询规范</strong></span></h2>
 <ul>
@@ -343,6 +347,46 @@
 <li>禁止，update sharding-key。update 分片键后可能会导致后面的查询找不到数据。</li>
 <li>禁止，跨区 update 、delete [order by] limit 。 mycat会在多个节点执行 limit语句，造成过多删除。</li>
 </ol>
+<h2><span id="高并发项目使用规范"> 高并发项目使用规范</span></h2>
+<ul>
+<li>用数据库来持久化存储以及保证事务一致性，不是运算器</li>
+<li>读写分离，主库只写和少量实时读取请求</li>
+<li>冷热数据进行水平拆分，LRU原则</li>
+<li>快速更新大数据表禁止直接运行count(*)统计</li>
+<li>在线表，归档表分类存储，归档数据建议迁移至newsql。</li>
+<li>SQL，短事务、快速执行、无阻塞</li>
+<li>想尽一切办法使用索引、主键》唯一索引》普通索引</li>
+</ul>
+<h2><span id="mysql配置规范"> mysql配置规范</span></h2>
+<ul>
+<li>
+<p>slow_query_log = on</p>
+</li>
+<li>
+<p>long_query_time=1</p>
+</li>
+<li>
+<p>slow_query_log_file=“xxx/slow_query.log”</p>
+</li>
+<li>
+<p>log-queries-not-using-indexes = on</p>
+</li>
+<li>
+<p>log-bin=“mysql/logs”</p>
+</li>
+<li>
+<p>设置较小InnoDB Buffer Pool、key buffer size</p>
+</li>
+<li>
+<p>数据量不能太少，否则有些性能问题无法提前规避</p>
+</li>
+</ul>
+<h2><span id="行为准则"> 行为准则</span></h2>
+<ul>
+<li>使用 archery 数据库作业平台</li>
+<li>上线新营销活动需要通知DBA评估压力，导入导出数据经过DBA审核</li>
+<li>多次ALTER合并为1次，不在高峰期批量更新数据。</li>
+</ul>
 
             </div>
             <hr>
@@ -360,11 +404,11 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/mysql/">mysql</a>
-                    
                       <a class="hover-with-bg" href="/tags/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83/">技术规范</a>
                     
                       <a class="hover-with-bg" href="/tags/%E8%AE%BE%E8%AE%A1/">设计</a>
+                    
+                      <a class="hover-with-bg" href="/tags/mysql/">mysql</a>
                     
                   </div>
                 

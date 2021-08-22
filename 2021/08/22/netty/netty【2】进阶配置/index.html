@@ -14,13 +14,29 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#F0CF55">
-  <meta name="description" content="">
+  <meta name="description" content="李林峰- 跟着案例学netty ，精华摘抄 2">
   <meta name="author" content="小中哥要看大白球球">
   <meta name="keywords" content="">
   
-  <title>标签 - java - 中委会</title>
+  <title>netty【2】进阶配置 - 中委会</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
 
 
 
@@ -147,9 +163,46 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.05)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="标签 - java">
+            <span class="h2" id="subtitle" title="netty【2】进阶配置">
               
             </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-22 21:26" pubdate>
+        2021年8月22日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      181 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      2
+       分钟
+    </span>
+  
+
+  
+  
+</div>
 
             
           </div>
@@ -162,46 +215,86 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div class="py-5" id="board"
-          >
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
-
-<div class="list-group">
-  <p class="h4">共计 2 篇文章</p>
-  <hr>
-  
-  
-    
       
-      <p class="h5">2021</p>
-    
-    <a href="/2021/08/05/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%902%E3%80%91%E5%AF%B9%E8%B1%A1%E5%A4%84%E7%90%86/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">java【2】对象处理</span>
-      <time style="float: right;">08-05</time>
-    </a>
-  
-    
-    <a href="/2021/08/04/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%901%E3%80%91%E9%9B%86%E5%90%88%E7%B1%BB/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">java【1】集合类</span>
-      <time style="float: right;">08-04</time>
-    </a>
-  
-</div>
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">netty【2】进阶配置</h1>
+            
+            <div class="markdown-body">
+              <p>李林峰- 跟着案例学netty ，精华摘抄 2</p>
+<span id="more"></span>
+<hr>
+<h1><span id="netty2进阶配置"> netty【2】进阶配置</span></h1>
+<h2><span id="操作系统参数调优"> 操作系统参数调优</span></h2>
+<p>单机，50w长连接配置。</p>
+<figure class="highlight sh"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs sh"><span class="hljs-comment"># vi /etc/sysctl.conf 修改网络参数，</span><br><br>net.ipv4.tcp_mem = 64608 1048576 2097152<br>net.ipv4.tcp_wmem = 2096 87380 4194304<br>net.ipv4.tcp_rmem = 2096 87380 4194304<br><br>net.ipv4.tcp_keepalive_time = 1800<br>net.ipv4.tcp_keepalive_intvl = 20<br>net.ipv4.tcp_keepalive_probes = 5<br><br>net.ipv4.tcp_tw_reuse = 1<br>net.ipv4.tcp_tw_recycle = 1<br>net.ipv4.tcp_fin_timeout = 30<br><br><span class="hljs-comment"># sysctl -p 使命令生效</span><br></code></pre></div></td></tr></table></figure>
+<h2><span id="gc配置"> GC配置</span></h2>
+<ol>
+<li>Minor GC 最大化：每次新生代尽可能多的回收内存，减少Full GC 频率</li>
+<li>GC 内存最大化：垃圾收集器内存越大，收集效率越高，应用越流畅，但Full GC 事件更长</li>
+<li>3选2原则：吞吐量、延迟、内存占用不可兼得。目前内存便宜，优先保吞吐量和延迟。</li>
+</ol>
 
-
-
-
-              </div>
             </div>
-          </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%90%8E%E7%AB%AF/netty/">netty</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/netty/">netty</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    转载到其他公开平台，需经过笔者同意（微信coolflamingo），笔者保留诉讼权利！
+                  
+                </p>
+              
+              
+            </div>
+
+            
+          </article>
         </div>
       </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
     
 
     
@@ -281,9 +374,15 @@
 
 
 
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
 
 
 
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
 
 
 

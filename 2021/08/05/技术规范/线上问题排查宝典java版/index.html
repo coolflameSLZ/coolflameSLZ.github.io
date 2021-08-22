@@ -185,7 +185,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.5k 字
+      1.6k 字
     </span>
   
 
@@ -195,7 +195,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      22
+      25
        分钟
     </span>
   
@@ -291,7 +291,7 @@ GCT总垃圾回收时间（单位秒）</p>
 <h3><span id="导致cpu高的常见原因"> 导致cpu高的常见原因</span></h3>
 <ul>
 <li>hashmap，并发死循环</li>
-<li>Full GC次数过多，详见内存部分。</li>
+<li>Full GC次数过多，而90%的频繁 fullGC ，是因为内存泄漏（释放不及时，晋升到老年代），详见内存部分。</li>
 <li>正则表达式非常消耗 CPU</li>
 <li>分布式锁的重试机制</li>
 <li>乐观锁、cas循环次数过多，或者竞争激烈</li>
@@ -318,6 +318,9 @@ GCT总垃圾回收时间（单位秒）</p>
 <li>
 <p>使用 <a target="_blank" rel="noopener" href="https://gceasy.io/">https://gceasy.io/</a> 快速查看GC分析报告</p>
 </li>
+<li>
+<p>尝试将某一个节点的内存调低，让这个节点更容易发生内存泄漏，快速暴露问题。</p>
+</li>
 </ol>
 <p>​</p>
 <h3><span id="内存占用高的常见原因"> 内存占用高的常见原因</span></h3>
@@ -330,12 +333,15 @@ GCT总垃圾回收时间（单位秒）</p>
 </ul>
 </li>
 <li>批量任务</li>
+<li>连接池大量僵尸连接，（mysql主动断开连接后，线程池最终没有清理）</li>
 <li>缓存size过大，缓存命中率不高的时候，gc就会频繁清理缓存</li>
 <li>序列化框架死循环，比如fastjson，gson。</li>
 <li>启动参数内存值设定的过小。</li>
 </ul>
 <h2><span id="网络"> 网络</span></h2>
 <p>【todo】</p>
+<figure class="highlight apache"><table><tr><td class="gutter hljs"><div class="hljs code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></div></td><td class="code"><div class="hljs code-wrapper"><pre><code class="hljs apache"><span class="hljs-attribute">netstat</span> -n | awk &#x27;/^tcp/ &#123;++S[$NF]&#125; END &#123;for(a in S) print a, S[a]&#125;&#x27; <br><br><span class="hljs-attribute">FIN_WAIT_1</span> <span class="hljs-number">2</span><br><span class="hljs-attribute">FIN_WAIT_2</span> <span class="hljs-number">3</span><br><span class="hljs-attribute">SYN_SENT</span> <span class="hljs-number">2</span><br><span class="hljs-attribute">LAST_ACK</span> <span class="hljs-number">1</span><br><span class="hljs-attribute">CLOSING</span> <span class="hljs-number">1</span><br><span class="hljs-attribute">CLOSE_WAIT</span> <span class="hljs-number">6</span><br><span class="hljs-attribute">TIME_WAIT</span> <span class="hljs-number">115</span><br><span class="hljs-attribute">ESTABLISHED</span> <span class="hljs-number">157</span><br></code></pre></div></td></tr></table></figure>
+<p><code>ESTABLISHED</code>表示正在通信，<code>TIME_WAIT</code>表示主动关闭，<code>CLOSE_WAIT</code>表示被动关闭。</p>
 <h3><span id="排查流程"> 排查流程</span></h3>
 <p>ping</p>
 <p>tcpdump</p>
@@ -413,12 +419,18 @@ GCT总垃圾回收时间（单位秒）</p>
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2021/08/05/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%902%E3%80%91%E5%AF%B9%E8%B1%A1%E5%A4%84%E7%90%86/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">java【2】对象处理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2021/08/04/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%902%E3%80%91%E5%AF%B9%E8%B1%A1%E5%A4%84%E7%90%86/">
-                        <span class="hidden-mobile">java【2】对象处理</span>
+                      <a href="/2021/08/04/%E5%86%99%E4%BB%A3%E7%A0%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97/java%E3%80%901%E3%80%91%E9%9B%86%E5%90%88%E7%B1%BB/">
+                        <span class="hidden-mobile">java【1】集合类</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
